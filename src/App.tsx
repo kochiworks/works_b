@@ -6,7 +6,9 @@ import { OptionPanel } from './components/OptionPanel'
 import { ResultSummary } from './components/ResultSummary'
 import { ResultTable } from './components/ResultTable'
 import { TreeDiagram } from './components/TreeDiagram'
+import { AnimationControls } from './components/AnimationControls'
 import { useExplorerState } from './hooks/useExplorerState'
+import { useCaseAnimation } from './hooks/useCaseAnimation'
 import './App.css'
 
 type ResultView = 'table' | 'tree'
@@ -34,6 +36,10 @@ function App() {
 
   const hasOptions =
     options.mustInclude.length > 0 || options.mustExclude.length > 0 || options.exclusiveGroups.length > 0
+
+  const animatable = result.enumerated ? result.cases.length : 0
+  const animation = useCaseAnimation(animatable)
+  const visibleTableCases = result.cases.slice(0, animation.revealed)
 
   return (
     <div className="app">
@@ -79,11 +85,25 @@ function App() {
               </button>
             </div>
 
+            {result.enumerated && result.cases.length > 0 && (
+              <AnimationControls
+                revealed={animation.revealed}
+                total={animation.total}
+                playing={animation.playing}
+                speed={animation.speed}
+                onSpeedChange={animation.setSpeed}
+                onPlayFromStart={animation.playFromStart}
+                onPause={animation.pause}
+                onResume={animation.resume}
+                onSkipToEnd={animation.skipToEnd}
+              />
+            )}
+
             {result.enumerated ? (
               view === 'table' ? (
-                <ResultTable cases={result.cases} r={r} />
+                <ResultTable cases={visibleTableCases} r={r} totalCases={result.cases.length} />
               ) : (
-                <TreeDiagram cases={result.cases} />
+                <TreeDiagram cases={result.cases} revealedCases={animation.revealed} />
               )
             ) : (
               <p className="hint">위 안내대로 n 또는 r을 줄이면 표·수형도를 볼 수 있습니다.</p>

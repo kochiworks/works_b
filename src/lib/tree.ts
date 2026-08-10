@@ -7,10 +7,24 @@ export interface TreeNode {
   children: TreeNode[]
 }
 
+export interface BuiltTree {
+  root: TreeNode
+  /**
+   * Cumulative node count (including the root) right after each case finished being
+   * inserted, in generation order. `caseNodeBoundaries.length === cases.length`.
+   * Used to drive the build-up animation: revealing the first N nodes of the
+   * (depth-first, insertion-ordered) node list is equivalent to having replayed the
+   * first `caseNodeBoundaries.indexOf(...)`-th case.
+   */
+  caseNodeBoundaries: number[]
+}
+
 /** Builds a prefix tree (trie) from the enumerated cases, merging shared prefixes. */
-export function buildTree(cases: ResultCase[]): TreeNode {
+export function buildTree(cases: ResultCase[]): BuiltTree {
   const root: TreeNode = { key: 'root', label: '', isLeaf: cases.length === 0, children: [] }
   const childMaps = new WeakMap<TreeNode, Map<string, TreeNode>>()
+  const caseNodeBoundaries: number[] = []
+  let nodeCount = 1 // root
 
   const childMapOf = (node: TreeNode): Map<string, TreeNode> => {
     let map = childMaps.get(node)
@@ -32,13 +46,15 @@ export function buildTree(cases: ResultCase[]): TreeNode {
         child = { key: `${current.key}>${mapKey}`, label: item.name, isLeaf: false, children: [] }
         map.set(mapKey, child)
         current.children.push(child)
+        nodeCount += 1
       }
       current = child
     }
     current.isLeaf = true
+    caseNodeBoundaries.push(nodeCount)
   }
 
-  return root
+  return { root, caseNodeBoundaries }
 }
 
 export interface PositionedNode extends TreeNode {
@@ -54,21 +70,25 @@ export interface TreeLayout {
   leafCount: number
 }
 
-/** Simple leaf-counting layout: each leaf gets an equal x-slot, parents center over children. */
-export function layoutTree(root: TreeNode, levelHeight = 64, leafSlot = 72): TreeLayout {
+/**
+ * Left-to-right ("vertical") layout: depth maps to x (bounded by r, so this stays
+ * narrow), leaf order maps to y (unbounded, so the diagram grows tall and scrolls
+ * vertically instead of spreading wide). Parents are centered over their children on y.
+ */
+export function layoutTree(root: TreeNode, levelWidth = 108, leafSlot = 32): TreeLayout {
   let leafIndex = 0
   let maxDepth = 0
 
   function assign(node: TreeNode, depth: number): PositionedNode {
     maxDepth = Math.max(maxDepth, depth)
     if (node.children.length === 0) {
-      const x = leafIndex * leafSlot + leafSlot / 2
+      const y = leafIndex * leafSlot + leafSlot / 2
       leafIndex += 1
-      return { ...node, x, y: depth * levelHeight, children: [] }
+      return { ...node, x: depth * levelWidth, y, children: [] }
     }
     const children = node.children.map((child) => assign(child, depth + 1))
-    const x = children.reduce((sum, child) => sum + child.x, 0) / children.length
-    return { ...node, x, y: depth * levelHeight, children }
+    const y = children.reduce((sum, child) => sum + child.y, 0) / children.length
+    return { ...node, x: depth * levelWidth, y, children }
   }
 
   const positionedRoot = assign(root, 0)
@@ -76,8 +96,8 @@ export function layoutTree(root: TreeNode, levelHeight = 64, leafSlot = 72): Tre
 
   return {
     root: positionedRoot,
-    width: leafCount * leafSlot,
-    height: (maxDepth + 1) * levelHeight,
+    width: (maxDepth + 1) * levelWidth,
+    height: leafCount * leafSlot,
     leafCount,
   }
 }
@@ -88,7 +108,12 @@ export interface TreeEdge {
   to: PositionedNode
 }
 
-/** Flattens the positioned tree into a node list and parent→child edge list for SVG rendering. */
+/**
+ * Flattens the positioned tree into a depth-first, insertion-ordered node list and a
+ * parent→child edge list for SVG rendering. Because children arrays preserve creation
+ * order, `nodes[i]` (for i ≥ 1) is always revealed together with `edges[i - 1]` — that
+ * pairing is what the build animation's single `revealCount` steps through.
+ */
 export function flattenTree(root: PositionedNode): { nodes: PositionedNode[]; edges: TreeEdge[] } {
   const nodes: PositionedNode[] = []
   const edges: TreeEdge[] = []
