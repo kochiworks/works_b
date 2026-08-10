@@ -9,18 +9,19 @@ export const SPEED_LABELS: Record<AnimationSpeed, string> = {
   veryFast: '매우 빠르게',
 }
 
-/** Milliseconds between each newly-revealed case. */
+/** Milliseconds between each newly-revealed cell. */
 const SPEED_MS: Record<AnimationSpeed, number> = {
-  slow: 700,
-  normal: 320,
-  fast: 130,
-  veryFast: 30,
+  slow: 1300,
+  normal: 700,
+  fast: 260,
+  veryFast: 60,
 }
 
 /**
- * Drives a "build up from nothing" animation over `total` items (cases).
- * Defaults to fully revealed (so results show immediately as before); call
- * `playFromStart` to replay the build-up on demand.
+ * Drives a "build up from nothing" animation over `total` cells (one item within one
+ * case, so a row with r columns takes r steps). Defaults to fully revealed (so results
+ * show immediately as before); call `playFromStart` to replay the build-up on demand,
+ * or `stepForward`/`stepBack` to advance one cell at a time by hand.
  */
 export function useCaseAnimation(total: number) {
   const [revealed, setRevealed] = useState(total)
@@ -62,5 +63,27 @@ export function useCaseAnimation(total: number) {
     setRevealed(total)
   }, [total])
 
-  return { revealed, total, playing, speed, setSpeed, playFromStart, pause, resume, skipToEnd }
+  const stepForward = useCallback(() => {
+    setPlaying(false)
+    setRevealed((current) => Math.min(current + 1, total))
+  }, [total])
+
+  const stepBack = useCallback(() => {
+    setPlaying(false)
+    setRevealed((current) => Math.max(current - 1, 0))
+  }, [])
+
+  return {
+    revealed,
+    total,
+    playing,
+    speed,
+    setSpeed,
+    playFromStart,
+    pause,
+    resume,
+    skipToEnd,
+    stepForward,
+    stepBack,
+  }
 }

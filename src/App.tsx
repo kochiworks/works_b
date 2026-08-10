@@ -37,9 +37,9 @@ function App() {
   const hasOptions =
     options.mustInclude.length > 0 || options.mustExclude.length > 0 || options.exclusiveGroups.length > 0
 
-  const animatable = result.enumerated ? result.cases.length : 0
-  const animation = useCaseAnimation(animatable)
-  const visibleTableCases = result.cases.slice(0, animation.revealed)
+  // Animation steps by cell (one item within one row), not by whole row.
+  const animatableCells = result.enumerated ? result.cases.length * r : 0
+  const animation = useCaseAnimation(animatableCells)
 
   return (
     <div className="app">
@@ -96,14 +96,21 @@ function App() {
                 onPause={animation.pause}
                 onResume={animation.resume}
                 onSkipToEnd={animation.skipToEnd}
+                onStepForward={animation.stepForward}
+                onStepBack={animation.stepBack}
               />
             )}
 
             {result.enumerated ? (
               view === 'table' ? (
-                <ResultTable cases={visibleTableCases} r={r} totalCases={result.cases.length} />
+                <ResultTable
+                  cases={result.cases}
+                  r={r}
+                  totalCases={result.cases.length}
+                  revealedCells={animation.revealed}
+                />
               ) : (
-                <TreeDiagram cases={result.cases} revealedCases={animation.revealed} />
+                <TreeDiagram cases={result.cases} revealedCells={animation.revealed} />
               )
             ) : (
               <p className="hint">위 안내대로 n 또는 r을 줄이면 표·수형도를 볼 수 있습니다.</p>

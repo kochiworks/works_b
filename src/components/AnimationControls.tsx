@@ -13,6 +13,8 @@ interface Props {
   onPause: () => void
   onResume: () => void
   onSkipToEnd: () => void
+  onStepForward: () => void
+  onStepBack: () => void
 }
 
 export function AnimationControls({
@@ -25,6 +27,8 @@ export function AnimationControls({
   onPause,
   onResume,
   onSkipToEnd,
+  onStepForward,
+  onStepBack,
 }: Props) {
   const finished = revealed >= total
   const pct = total > 0 ? Math.round((revealed / total) * 100) : 100
@@ -45,6 +49,14 @@ export function AnimationControls({
             ▶ 이어서 재생
           </button>
         )}
+        <div className="step-group">
+          <button type="button" className="step-btn" onClick={onStepBack} disabled={revealed <= 0}>
+            ◀ 한 칸
+          </button>
+          <button type="button" className="step-btn" onClick={onStepForward} disabled={finished}>
+            한 칸 ▶
+          </button>
+        </div>
         <button type="button" className="link-btn" onClick={onSkipToEnd} disabled={finished && !playing}>
           전체 보기
         </button>
@@ -61,7 +73,7 @@ export function AnimationControls({
           ))}
         </div>
         <span className="animation-progress-label">
-          {revealed.toLocaleString('ko-KR')} / {total.toLocaleString('ko-KR')}
+          {revealed.toLocaleString('ko-KR')} / {total.toLocaleString('ko-KR')}칸
         </span>
       </div>
       <div className="progress-bar">

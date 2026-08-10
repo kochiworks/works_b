@@ -10,20 +10,21 @@ export interface TreeNode {
 export interface BuiltTree {
   root: TreeNode
   /**
-   * Cumulative node count (including the root) right after each case finished being
-   * inserted, in generation order. `caseNodeBoundaries.length === cases.length`.
-   * Used to drive the build-up animation: revealing the first N nodes of the
-   * (depth-first, insertion-ordered) node list is equivalent to having replayed the
-   * first `caseNodeBoundaries.indexOf(...)`-th case.
+   * Cumulative node count (including the root) right after each *cell* (one item
+   * within one case) finished being inserted, in generation order —
+   * `cellNodeBoundaries.length === sum of every case's length`. Used to drive the
+   * cell-by-cell build-up animation: revealing the first N nodes of the (depth-first,
+   * insertion-ordered) node list is equivalent to having replayed the first
+   * `cellNodeBoundaries.indexOf(...)`-th cell, matching the table's per-cell reveal.
    */
-  caseNodeBoundaries: number[]
+  cellNodeBoundaries: number[]
 }
 
 /** Builds a prefix tree (trie) from the enumerated cases, merging shared prefixes. */
 export function buildTree(cases: ResultCase[]): BuiltTree {
   const root: TreeNode = { key: 'root', label: '', isLeaf: cases.length === 0, children: [] }
   const childMaps = new WeakMap<TreeNode, Map<string, TreeNode>>()
-  const caseNodeBoundaries: number[] = []
+  const cellNodeBoundaries: number[] = []
   let nodeCount = 1 // root
 
   const childMapOf = (node: TreeNode): Map<string, TreeNode> => {
@@ -49,12 +50,12 @@ export function buildTree(cases: ResultCase[]): BuiltTree {
         nodeCount += 1
       }
       current = child
+      cellNodeBoundaries.push(nodeCount)
     }
     current.isLeaf = true
-    caseNodeBoundaries.push(nodeCount)
   }
 
-  return { root, caseNodeBoundaries }
+  return { root, cellNodeBoundaries }
 }
 
 export interface PositionedNode extends TreeNode {

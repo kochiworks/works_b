@@ -312,6 +312,23 @@
   overflow-x: auto;
 }
 
+/* "화면에 맞춰 보기" — same fixed box, but no scrolling: the svg's viewBox scales
+   down (preserveAspectRatio) to fit entirely inside instead of overflowing. */
+.tree-fit {
+  height: 480px;
+  overflow: hidden;
+}
+
+.fit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #384056;
+  cursor: pointer;
+}
+
 @keyframes tree-fade-in {
   from {
     opacity: 0;
@@ -322,8 +339,13 @@
 }
 
 .tree-node-enter,
-.tree-edge-enter {
+.tree-edge-enter,
+.cell-enter {
   animation: tree-fade-in 220ms ease-out;
+}
+
+.cell-enter {
+  display: inline-block;
 }
 
 .result-table {
@@ -362,6 +384,26 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 8px;
+}
+
+.step-group {
+  display: flex;
+  gap: 4px;
+}
+
+.step-btn {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid #d6dcea;
+  background: #f4f6fb;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #384056;
+}
+
+.step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .speed-group {
