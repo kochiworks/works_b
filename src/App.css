@@ -312,11 +312,15 @@
   overflow-x: auto;
 }
 
-/* "화면에 맞춰 보기" — same fixed box, but no scrolling: the svg's viewBox scales
-   down (preserveAspectRatio) to fit entirely inside instead of overflowing. */
+/* "화면에 맞춰 보기" — the svg is pre-scaled in JS (down to a minimum readable
+   size, see FIT_MIN_SCALE) to fit this box; centered, and only scrolls if even
+   the minimum size doesn't fit. */
 .tree-fit {
-  height: 480px;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 .fit-toggle {

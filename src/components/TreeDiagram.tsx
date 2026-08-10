@@ -8,6 +8,16 @@ const TREE_LEAF_LIMIT = 300
 const NODE_RADIUS = 5
 const PADDING = 20
 
+/** Target box height for "화면에 맞춰 보기". */
+const FIT_BOX_HEIGHT = 520
+/**
+ * Never shrink below this scale — beyond it, nodes/labels become too small to
+ * perceive at all (which is exactly what made the build animation look "stuck"
+ * on tall trees). Below this floor we fall back to scrolling instead of shrinking
+ * further, so newly-revealed cells stay visible even if not everything fits at once.
+ */
+const FIT_MIN_SCALE = 0.5
+
 interface Props {
   /** Full, stable case list — the tree's shape is always built from all of it. */
   cases: ResultCase[]
@@ -46,6 +56,14 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
   const width = layout.width + PADDING * 2
   const height = layout.height + PADDING * 2
 
+  // Only shrink down to FIT_MIN_SCALE — past that, keep the minimum readable size
+  // and let the container scroll for the rest, rather than shrinking nodes into
+  // invisibility (see FIT_MIN_SCALE comment above).
+  const fitScale = fitToScreen ? Math.max(FIT_MIN_SCALE, Math.min(1, FIT_BOX_HEIGHT / height)) : 1
+  const renderWidth = fitToScreen ? width * fitScale : width
+  const renderHeight = fitToScreen ? height * fitScale : height
+  const stillNeedsScroll = fitToScreen && renderHeight > FIT_BOX_HEIGHT
+
   return (
     <div>
       <label className="fit-toggle">
@@ -56,12 +74,16 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
         />
         화면에 맞춰 보기 (스크롤 없이)
       </label>
+      {stillNeedsScroll && (
+        <p className="hint">
+          결과가 많아 완전히 맞추면 너무 작아지므로 최소 크기로 표시합니다 (세로 스크롤 가능).
+        </p>
+      )}
       <div className={fitToScreen ? 'tree-fit' : 'tree-scroll'}>
         <svg
-          width={fitToScreen ? '100%' : width}
-          height={fitToScreen ? '100%' : height}
+          width={renderWidth}
+          height={renderHeight}
           viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio={fitToScreen ? 'xMidYMid meet' : undefined}
           role="img"
           aria-label="경우의 수 수형도"
         >
