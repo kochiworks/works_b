@@ -44,6 +44,10 @@ export function AnimationControls({
           <button type="button" className="secondary-btn" onClick={onPlayFromStart}>
             ▶ 처음부터 재생
           </button>
+        ) : revealed <= 0 ? (
+          <button type="button" className="secondary-btn" onClick={onResume}>
+            ▶ 재생
+          </button>
         ) : (
           <button type="button" className="secondary-btn" onClick={onResume}>
             ▶ 이어서 재생

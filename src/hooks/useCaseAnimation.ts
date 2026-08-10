@@ -19,18 +19,19 @@ const SPEED_MS: Record<AnimationSpeed, number> = {
 
 /**
  * Drives a "build up from nothing" animation over `total` cells (one item within one
- * case, so a row with r columns takes r steps). Defaults to fully revealed (so results
- * show immediately as before); call `playFromStart` to replay the build-up on demand,
- * or `stepForward`/`stepBack` to advance one cell at a time by hand.
+ * case, so a row with r columns takes r steps). Every new result set starts at step 0
+ * (nothing revealed yet) rather than jumping straight to the finished result; call
+ * `playFromStart`/`resume` to animate, or `stepForward`/`stepBack` to advance one cell
+ * at a time by hand, or `skipToEnd` to jump straight to the full result.
  */
 export function useCaseAnimation(total: number) {
-  const [revealed, setRevealed] = useState(total)
+  const [revealed, setRevealed] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState<AnimationSpeed>('normal')
 
-  // A new result set (different n/r/mode/options) always starts fully shown.
+  // A new result set (different n/r/mode/options) always starts from step 0.
   useEffect(() => {
-    setRevealed(total)
+    setRevealed(0)
     setPlaying(false)
   }, [total])
 
