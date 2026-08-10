@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { buildTree, flattenTree, layoutTree } from '../lib/tree'
 import type { ResultCase } from '../lib/types'
 
@@ -31,19 +31,6 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
   const layout = useMemo(() => layoutTree(built.root), [built])
   const { nodes, edges } = useMemo(() => flattenTree(layout.root), [layout])
 
-  if (cases.length === 0) {
-    return <p className="hint">조건을 만족하는 경우가 없습니다.</p>
-  }
-
-  if (layout.leafCount > TREE_LEAF_LIMIT) {
-    return (
-      <p className="warning">
-        경우의 수가 {cases.length.toLocaleString('ko-KR')}가지로 많아 수형도가 너무 커집니다. 표 보기를
-        이용하거나 n·r을 줄여주세요.
-      </p>
-    )
-  }
-
   const clampedCells = Math.min(Math.max(revealedCells, 0), built.cellNodeBoundaries.length)
   // nodes[0] is always the root; nodes[i] (i ≥ 1) is revealed together with edges[i - 1].
   const nodeRevealCount =
@@ -63,6 +50,30 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
   const renderWidth = fitToScreen ? width * fitScale : width
   const renderHeight = fitToScreen ? height * fitScale : height
   const stillNeedsScroll = fitToScreen && renderHeight > FIT_BOX_HEIGHT
+
+  // As the tree grows taller than its scroll box, keep the just-revealed node in
+  // view automatically instead of leaving the viewport pinned at the top.
+  const latestNodeRef = useRef<SVGGElement | null>(null)
+  useEffect(() => {
+    // 'auto' (instant), not 'smooth': at fast playback speeds a new step can fire
+    // before the previous smooth-scroll animation finishes, and interrupting an
+    // in-flight smooth scroll repeatedly makes the browser overshoot/undershoot
+    // instead of tracking the latest node.
+    latestNodeRef.current?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' })
+  }, [nodeRevealCount, fitToScreen])
+
+  if (cases.length === 0) {
+    return <p className="hint">조건을 만족하는 경우가 없습니다.</p>
+  }
+
+  if (layout.leafCount > TREE_LEAF_LIMIT) {
+    return (
+      <p className="warning">
+        경우의 수가 {cases.length.toLocaleString('ko-KR')}가지로 많아 수형도가 너무 커집니다. 표 보기를
+        이용하거나 n·r을 줄여주세요.
+      </p>
+    )
+  }
 
   return (
     <div>
@@ -100,8 +111,12 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
                 strokeWidth={1.5}
               />
             ))}
-            {visibleNodes.map((node) => (
-              <g key={node.key} transform={`translate(${node.x}, ${node.y})`}>
+            {visibleNodes.map((node, index) => (
+              <g
+                key={node.key}
+                ref={index === visibleNodes.length - 1 ? latestNodeRef : undefined}
+                transform={`translate(${node.x}, ${node.y})`}
+              >
                 {node.key !== 'root' && (
                   <circle
                     className="tree-node-enter"
