@@ -1,9 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { buildTree, flattenTree, layoutTree } from '../lib/tree'
+import { usePrevious } from '../hooks/usePrevious'
 import type { ResultCase } from '../lib/types'
 
-/** Above this many leaves the tree gets too tall/slow to be useful — suggest the table view instead. */
-const TREE_LEAF_LIMIT = 300
+/**
+ * Above this many leaves the tree gets too slow to render — suggest the table view
+ * instead. Matches ENUMERATE_LIMIT (the shared cap on how many cases get generated at
+ * all), since a leaf count can never exceed the case count and browser benchmarking
+ * showed both table rows and tree nodes stay under ~1s to render up to this size.
+ */
+const TREE_LEAF_LIMIT = 5000
+
+/**
+ * Above this many newly-revealed nodes in one render (e.g. "전체 보기" on a large
+ * tree, or the very first paint), skip the per-node mount animation — see the same
+ * constant's comment in ResultTable.tsx for why.
+ */
+const ANIMATE_JUMP_THRESHOLD = 40
 
 const NODE_RADIUS = 5
 const PADDING = 20
@@ -39,6 +52,9 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
   // The root has no visible marker, so the stub lines running from it to the first
   // level of nodes would just dangle at an empty point — drop those too.
   const visibleEdges = edges.slice(0, Math.max(nodeRevealCount - 1, 0)).filter((edge) => edge.from.key !== 'root')
+
+  const previousNodeRevealCount = usePrevious(nodeRevealCount)
+  const animate = Math.abs(nodeRevealCount - previousNodeRevealCount) <= ANIMATE_JUMP_THRESHOLD
 
   const width = layout.width + PADDING * 2
   const height = layout.height + PADDING * 2
@@ -102,7 +118,7 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
             {visibleEdges.map((edge) => (
               <line
                 key={edge.key}
-                className="tree-edge-enter"
+                className={animate ? 'tree-edge-enter' : undefined}
                 x1={edge.from.x}
                 y1={edge.from.y}
                 x2={edge.to.x}
@@ -119,7 +135,7 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
               >
                 {node.key !== 'root' && (
                   <circle
-                    className="tree-node-enter"
+                    className={animate ? 'tree-node-enter' : undefined}
                     r={NODE_RADIUS}
                     fill={node.isLeaf ? '#2f6fed' : '#ffffff'}
                     stroke="#2f6fed"
@@ -128,7 +144,7 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
                 )}
                 {node.label && (
                   <text
-                    className="tree-node-enter"
+                    className={animate ? 'tree-node-enter' : undefined}
                     x={NODE_RADIUS + 6}
                     dominantBaseline="central"
                     fontSize={12}

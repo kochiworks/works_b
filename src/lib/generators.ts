@@ -6,7 +6,7 @@ import type { ExplorerOptions, Item, Mode, ResultCase } from './types'
  * The pool size that would be generated is checked with `countForMode`
  * *before* recursing, so we never start a blow-up in the first place.
  */
-export const ENUMERATE_LIMIT = 2000
+export const ENUMERATE_LIMIT = 5000
 
 function permutations(pool: Item[], r: number): ResultCase[] {
   const results: ResultCase[] = []

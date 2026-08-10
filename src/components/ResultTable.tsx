@@ -1,4 +1,13 @@
+import { usePrevious } from '../hooks/usePrevious'
 import type { ResultCase } from '../lib/types'
+
+/**
+ * Above this many newly-revealed cells in one render (e.g. clicking "전체 보기" on a
+ * large result, or the very first paint), skip the per-cell mount animation — firing
+ * a CSS animation on thousands of cells at once is what made large jumps freeze the
+ * page for seconds, not the DOM size itself.
+ */
+const ANIMATE_JUMP_THRESHOLD = 40
 
 interface Props {
   /** Full result set — rows/cells are revealed via `revealedCells`, not by slicing this. */
@@ -11,6 +20,9 @@ interface Props {
 }
 
 export function ResultTable({ cases, r, totalCases, revealedCells }: Props) {
+  const previousRevealedCells = usePrevious(revealedCells)
+  const animate = Math.abs(revealedCells - previousRevealedCells) <= ANIMATE_JUMP_THRESHOLD
+
   if (totalCases === 0) {
     return <p className="hint">조건을 만족하는 경우가 없습니다.</p>
   }
@@ -39,7 +51,9 @@ export function ResultTable({ cases, r, totalCases, revealedCells }: Props) {
                 <td className="row-index">{index + 1}</td>
                 {kase.map((item, position) => (
                   <td key={`${item.id}-${position}`}>
-                    {position < visibleCount && <span className="cell-enter">{item.name}</span>}
+                    {position < visibleCount && (
+                      <span className={animate ? 'cell-enter' : undefined}>{item.name}</span>
+                    )}
                   </td>
                 ))}
               </tr>
