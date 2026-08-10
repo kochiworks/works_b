@@ -61,13 +61,15 @@ export function TreeDiagram({ cases, revealedCases }: Props) {
           ))}
           {visibleNodes.map((node) => (
             <g key={node.key} transform={`translate(${node.x}, ${node.y})`}>
-              <circle
-                className="tree-node-enter"
-                r={NODE_RADIUS}
-                fill={node.key === 'root' ? '#94a3c4' : node.isLeaf ? '#2f6fed' : '#ffffff'}
-                stroke="#2f6fed"
-                strokeWidth={1.5}
-              />
+              {node.key !== 'root' && (
+                <circle
+                  className="tree-node-enter"
+                  r={NODE_RADIUS}
+                  fill={node.isLeaf ? '#2f6fed' : '#ffffff'}
+                  stroke="#2f6fed"
+                  strokeWidth={1.5}
+                />
+              )}
               {node.label && (
                 <text
                   className="tree-node-enter"
