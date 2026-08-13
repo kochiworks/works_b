@@ -16,8 +16,8 @@ export function FormulaDisplay({ mode, n, r }: Props) {
     <div className="formula-card">
       <span className="formula-notation">
         <sub>{n}</sub>
-        {symbol}
-        <sup>{r}</sup>
+        <span className="formula-symbol">{symbol}</span>
+        <sub>{r}</sub>
       </span>
       <span className="formula-eq">=</span>
       <span className="formula-expression">{expression}</span>

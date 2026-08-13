@@ -171,8 +171,14 @@
   font-size: 0.6em;
 }
 
-.formula-notation sup {
-  font-size: 0.6em;
+/* Serif fallback specifically for the P/C/Π/H symbol: the UI's sans-serif stack
+   (Pretendard/-apple-system) renders the Greek Π with a squat, rounded design at
+   this weight that reads as a lowercase Latin letter at a glance. A classical serif
+   draws Π with the flat-topped, evenly-weighted strokes students expect from the
+   textbook symbol, and every platform ships a serif with that Greek glyph. */
+.formula-symbol {
+  font-family: 'STIX Two Math', 'Cambria Math', Cambria, Georgia, 'Times New Roman', serif;
+  font-weight: 700;
 }
 
 .formula-eq {
