@@ -152,13 +152,19 @@
 
 .formula-card {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  gap: 12px;
   padding: 18px 22px;
   border-radius: var(--radius-lg);
   background: linear-gradient(120deg, var(--accent-soft), var(--sky-soft));
   border: 1px solid var(--border-soft);
+}
+
+.formula-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .formula-notation {
@@ -197,6 +203,16 @@
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--text);
+  transition: filter 150ms ease;
+}
+
+.formula-value.is-hidden {
+  filter: blur(9px);
+  user-select: none;
+}
+
+.formula-card .quiz-toggle {
+  align-self: flex-end;
 }
 
 /* --- Item name editor --- */
@@ -446,11 +462,6 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.result-summary-header {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .quiz-toggle {

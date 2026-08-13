@@ -1,29 +1,19 @@
-import { useState } from 'react'
 import { ENUMERATE_LIMIT } from '../lib/generators'
 import type { GenerateResult } from '../lib/generators'
 
 interface Props {
   result: GenerateResult
   hasOptions: boolean
+  /** Shares the "정답 가리기" state with FormulaDisplay so the total doesn't give the
+   *  answer away while the formula's value is still hidden. */
+  hidden: boolean
 }
 
-export function ResultSummary({ result, hasOptions }: Props) {
+export function ResultSummary({ result, hasOptions, hidden }: Props) {
   const { baseTotal, poolTotal, enumerated, cases } = result
-  const [hidden, setHidden] = useState(false)
 
   return (
     <section className="panel result-summary">
-      <div className="result-summary-header">
-        <button
-          type="button"
-          className="quiz-toggle"
-          onClick={() => setHidden((prev) => !prev)}
-          title="학생들이 먼저 예상해보게 한 뒤 눌러서 확인해보세요."
-        >
-          {hidden ? '👀 정답 보기' : '🙈 정답 가리기'}
-        </button>
-      </div>
-
       <div className={hidden ? 'totals-row is-hidden' : 'totals-row'}>
         <div className="total-figure">
           <span className="total-label">전체 경우의 수</span>

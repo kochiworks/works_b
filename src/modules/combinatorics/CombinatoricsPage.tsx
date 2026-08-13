@@ -36,6 +36,7 @@ export function CombinatoricsPage() {
   } = useExplorerState()
 
   const [view, setView] = useState<ResultView>('table')
+  const [answerHidden, setAnswerHidden] = useState(true)
 
   const hasOptions =
     options.mustInclude.length > 0 || options.mustExclude.length > 0 || options.exclusiveGroups.length > 0
@@ -70,8 +71,14 @@ export function CombinatoricsPage() {
         </div>
 
         <div className="result-column">
-          <FormulaDisplay mode={mode} n={items.length} r={r} />
-          <ResultSummary result={result} hasOptions={hasOptions} />
+          <FormulaDisplay
+            mode={mode}
+            n={items.length}
+            r={r}
+            hidden={answerHidden}
+            onToggleHidden={() => setAnswerHidden((prev) => !prev)}
+          />
+          <ResultSummary result={result} hasOptions={hasOptions} hidden={answerHidden} />
 
           <section className="panel">
             <div className="view-tabs">

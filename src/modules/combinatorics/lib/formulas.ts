@@ -53,12 +53,34 @@ export function countForMode(mode: Mode, n: number, r: number): number {
   }
 }
 
+const SUBSCRIPT_DIGITS: Record<string, string> = {
+  '0': '₀',
+  '1': '₁',
+  '2': '₂',
+  '3': '₃',
+  '4': '₄',
+  '5': '₅',
+  '6': '₆',
+  '7': '₇',
+  '8': '₈',
+  '9': '₉',
+}
+
+/** Renders a number as inline Unicode subscript digits, for embedding a small "ₙPᵣ"-style
+ *  reference inside a plain-text expression (the main notation uses real <sub> elements). */
+function sub(num: number): string {
+  return String(num)
+    .split('')
+    .map((digit) => SUBSCRIPT_DIGITS[digit] ?? digit)
+    .join('')
+}
+
 export interface FormulaBreakdown {
   /** The textbook symbol used between the sub/superscript n and r, e.g. "P", "C", "Π", "H". */
   symbol: string
   n: number
   r: number
-  /** The arithmetic behind the notation, e.g. "5 × 4 × 3" or "(7 × 6 × 5) ÷ (3 × 2 × 1)". */
+  /** The derivation behind the notation, e.g. "5 × 4 × 3" or "ₙPᵣ ÷ r! = (4 × 3) ÷ (2 × 1)". */
   expression: string
   value: number
 }
@@ -83,14 +105,18 @@ export function formulaBreakdown(mode: Mode, n: number, r: number): FormulaBreak
       if (r === 0) return { symbol: 'C', n, r, expression: '1', value: 1 }
       const numerator = descendingProduct(n, r)
       const denominator = descendingProduct(r, r)
-      return { symbol: 'C', n, r, expression: `(${numerator}) ÷ (${denominator})`, value: nCr(n, r) }
+      // Textbook derivation: nCr = nPr ÷ r!
+      const expression = `${sub(n)}P${sub(r)} ÷ ${r}! = (${numerator}) ÷ (${denominator})`
+      return { symbol: 'C', n, r, expression, value: nCr(n, r) }
     }
     case 'combinationWithRepetition': {
       if (r === 0) return { symbol: 'H', n, r, expression: '1', value: 1 }
       const nn = n + r - 1
       const numerator = descendingProduct(nn, r)
       const denominator = descendingProduct(r, r)
-      return { symbol: 'H', n, r, expression: `(${numerator}) ÷ (${denominator})`, value: nCrRepetition(n, r) }
+      // Textbook derivation: nHr = (n+r-1)Cr
+      const expression = `${sub(nn)}C${sub(r)} = (${numerator}) ÷ (${denominator})`
+      return { symbol: 'H', n, r, expression, value: nCrRepetition(n, r) }
     }
   }
 }
