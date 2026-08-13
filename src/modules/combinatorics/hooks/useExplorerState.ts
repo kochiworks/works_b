@@ -20,6 +20,11 @@ function makeItem(index: number): Item {
   return { id: `item-${nextItemSeq}`, name: defaultName(index) }
 }
 
+function makeNamedItem(name: string): Item {
+  nextItemSeq += 1
+  return { id: `item-${nextItemSeq}`, name }
+}
+
 function initialItems(): Item[] {
   return [makeItem(0), makeItem(1), makeItem(2), makeItem(3)]
 }
@@ -117,6 +122,22 @@ export function useExplorerState() {
     setOptions({ mustInclude: [], mustExclude: [], exclusiveGroups: [] })
   }, [])
 
+  /**
+   * Loads a canned classroom scenario in one atomic update: replaces the item
+   * list with named items, switches mode, and sets r — computing the new
+   * maxR from the preset's own item count right here (rather than the current
+   * closure's stale `maxR`) so a bigger r isn't clamped away by leftover state
+   * from before the preset was applied.
+   */
+  const applyPreset = useCallback((preset: { mode: Mode; names: string[]; r: number }) => {
+    const newItems = preset.names.map((name) => makeNamedItem(name))
+    setItems(newItems)
+    setModeState(preset.mode)
+    const newMaxR = maxRFor(preset.mode, newItems.length)
+    setRState(Math.min(Math.max(preset.r, R_MIN), newMaxR))
+    setOptions({ mustInclude: [], mustExclude: [], exclusiveGroups: [] })
+  }, [])
+
   const result = useMemo(
     () => generateCases(items, r, mode, options),
     [items, r, mode, options],
@@ -138,6 +159,7 @@ export function useExplorerState() {
     addExclusiveGroup,
     removeExclusiveGroup,
     resetOptions,
+    applyPreset,
   }
 }
 

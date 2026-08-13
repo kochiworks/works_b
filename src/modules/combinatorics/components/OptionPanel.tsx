@@ -82,8 +82,8 @@ export function OptionPanel({
         </div>
       </div>
 
-      <div className="option-block">
-        <h3>동시 포함 금지 그룹</h3>
+      <details className="option-block advanced-block">
+        <summary>고급: 동시 포함 금지 그룹</summary>
         <p className="hint">체크한 대상들 중 최대 1개만 함께 등장할 수 있습니다.</p>
         <div className="checkbox-grid">
           {items.map((item) => (
@@ -113,7 +113,7 @@ export function OptionPanel({
             ))}
           </ul>
         )}
-      </div>
+      </details>
     </section>
   )
 }

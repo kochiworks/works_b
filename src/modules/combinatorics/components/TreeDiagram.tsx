@@ -123,7 +123,7 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
                 y1={edge.from.y}
                 x2={edge.to.x}
                 y2={edge.to.y}
-                stroke="#c3ccdc"
+                stroke="#d8d3f5"
                 strokeWidth={1.5}
               />
             ))}
@@ -137,8 +137,8 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
                   <circle
                     className={animate ? 'tree-node-enter' : undefined}
                     r={NODE_RADIUS}
-                    fill={node.isLeaf ? '#2f6fed' : '#ffffff'}
-                    stroke="#2f6fed"
+                    fill={node.isLeaf ? '#8b7cf6' : '#ffffff'}
+                    stroke="#6d5ce3"
                     strokeWidth={1.5}
                   />
                 )}
@@ -148,7 +148,7 @@ export function TreeDiagram({ cases, revealedCells }: Props) {
                     x={NODE_RADIUS + 6}
                     dominantBaseline="central"
                     fontSize={12}
-                    fill="#1a2233"
+                    fill="#2c2a3d"
                   >
                     {node.label}
                   </text>
