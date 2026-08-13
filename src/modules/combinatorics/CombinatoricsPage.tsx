@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ItemNameEditor } from './components/ItemNameEditor'
 import { ModeSelector } from './components/ModeSelector'
 import { RPicker } from './components/RPicker'
@@ -37,6 +37,13 @@ export function CombinatoricsPage() {
 
   const [view, setView] = useState<ResultView>('table')
   const [answerHidden, setAnswerHidden] = useState(true)
+
+  // Any change to the actual problem (mode, r, how many items, or the include/
+  // exclude/group conditions) re-hides the answer — a revealed answer shouldn't
+  // carry over to a new setup, whether that's a preset click or a manual tweak.
+  useEffect(() => {
+    setAnswerHidden(true)
+  }, [mode, r, items.length, options])
 
   const hasOptions =
     options.mustInclude.length > 0 || options.mustExclude.length > 0 || options.exclusiveGroups.length > 0

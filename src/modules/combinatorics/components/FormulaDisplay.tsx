@@ -25,7 +25,7 @@ export function FormulaDisplay({ mode, n, r, hidden, onToggleHidden }: Props) {
           <sub>{r}</sub>
         </span>
         <span className="formula-eq">=</span>
-        <span className="formula-expression">{expression}</span>
+        <span className={hidden ? 'formula-expression is-hidden' : 'formula-expression'}>{expression}</span>
         <span className="formula-eq">=</span>
         <span className={hidden ? 'formula-value is-hidden' : 'formula-value'}>
           {value.toLocaleString('ko-KR')}

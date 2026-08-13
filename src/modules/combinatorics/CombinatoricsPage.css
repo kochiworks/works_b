@@ -197,6 +197,7 @@
   font-weight: 700;
   color: var(--text);
   font-variant-numeric: tabular-nums;
+  transition: filter 150ms ease;
 }
 
 .formula-value {
@@ -206,6 +207,7 @@
   transition: filter 150ms ease;
 }
 
+.formula-expression.is-hidden,
 .formula-value.is-hidden {
   filter: blur(9px);
   user-select: none;
