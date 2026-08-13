@@ -1,0 +1,321 @@
+.transformations-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.page-intro {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.page-intro h1 {
+  margin: 0 0 6px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.explorer-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .explorer-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-column,
+.result-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border-softer);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+}
+
+/* --- Shared pill controls (matches the combinatorics module's look) --- */
+
+.mode-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mode-tab {
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.mode-tab:hover:not(.active) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.mode-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Vertex editor --- */
+
+.vertex-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vertex-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.vertex-name {
+  width: 1.2em;
+  color: var(--accent-strong);
+}
+
+.vertex-paren {
+  color: var(--text-faint);
+}
+
+.vertex-input {
+  width: 56px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vertex-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* --- Transform controls --- */
+
+.transform-params {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-softer);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* --- Rule display (formula-style card) --- */
+
+.formula-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(120deg, var(--accent-soft), var(--sky-soft));
+}
+
+.formula-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.formula-notation {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent-strong);
+}
+
+.formula-eq {
+  color: var(--text-faint);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.formula-expression {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.result-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.88rem;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.result-table th,
+.result-table td {
+  border: 1px solid var(--border-softer);
+  padding: 8px 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.result-table th {
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.row-index {
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.coord-cell {
+  font-weight: 700;
+  color: var(--text);
+  transition: filter 150ms ease;
+}
+
+.coord-cell.is-hidden {
+  filter: blur(7px);
+  user-select: none;
+}
+
+.quiz-toggle {
+  align-self: flex-end;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--lemon-soft);
+  color: #8a6a12;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: transform 100ms ease;
+}
+
+.quiz-toggle:active {
+  transform: scale(0.96);
+}
+
+/* --- Coordinate grid panel --- */
+
+.grid-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend {
+  align-self: flex-start;
+  display: flex;
+  gap: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot--original {
+  background: #ffffff;
+  border: 2px solid #8b7cf6;
+}
+
+.legend-dot--transformed {
+  background: #ff9d87;
+  border: 2px solid #e8735c;
+}
+
+.grid-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.shape-transformed {
+  transition: opacity 150ms ease;
+}
+
+.shape-transformed.is-hidden {
+  opacity: 0.25;
+}
+
+.shape-edge,
+.shape-vertex {
+  transition:
+    cx 550ms ease,
+    cy 550ms ease,
+    x1 550ms ease,
+    y1 550ms ease,
+    x2 550ms ease,
+    y2 550ms ease;
+}

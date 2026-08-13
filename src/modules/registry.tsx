@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { CombinatoricsPage } from './combinatorics/CombinatoricsPage'
+import { TransformationsPage } from './transformations/TransformationsPage'
 
 export type ModuleAccent = 'violet' | 'mint' | 'peach' | 'sky' | 'lemon'
 
@@ -57,6 +58,7 @@ export const MODULES: ModuleMeta[] = [
     description: '도형을 직접 움직여 보며 이동 규칙을 눈으로 확인합니다.',
     icon: '🔺',
     accent: 'peach',
-    status: 'soon',
+    status: 'available',
+    Component: TransformationsPage,
   },
 ]
