@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimationControls } from './components/AnimationControls'
+import { ApproxAnimationControls } from './components/ApproxAnimationControls'
 import { EventSelector } from './components/EventSelector'
 import { ExperimentSelector } from './components/ExperimentSelector'
 import { ExperimentSettings } from './components/ExperimentSettings'
@@ -10,6 +11,7 @@ import { ProbabilityFormula } from './components/ProbabilityFormula'
 import { ResultSummary } from './components/ResultSummary'
 import { TrialCountControl } from './components/TrialCountControl'
 import { TrialLog } from './components/TrialLog'
+import { useNormalApproxAnimation } from './hooks/useNormalApproxAnimation'
 import { TRIAL_COUNT_DEFAULT, useSimulationRun } from './hooks/useSimulationRun'
 import { useTrialAnimation } from './hooks/useTrialAnimation'
 import { useProbabilityState } from './hooks/useProbabilityState'
@@ -39,6 +41,7 @@ export function ProbabilityPage() {
   const [trialCount, setTrialCount] = useState(TRIAL_COUNT_DEFAULT)
   const { trials, reroll } = useSimulationRun(sampleSpace, trialCount)
   const animation = useTrialAnimation(trials.length)
+  const approxAnimation = useNormalApproxAnimation(trialCount)
 
   // The trial batch itself (a fresh useSimulationRun draw, whether from a settings
   // change or an explicit reroll) always starts the build-up animation over.
@@ -136,14 +139,29 @@ export function ProbabilityPage() {
             <section className="panel">
               <h2>이항분포의 정규분포 근사</h2>
               <p className="hint">
-                시행 {trialCount.toLocaleString('ko-KR')}번 중 사건 A가 발생하는 횟수는 이항분포를 따릅니다(보라색
-                막대). 시행 횟수를 늘릴수록 이 막대들이 코랄색 정규분포 곡선에 점점 가까워지는 모습을 확인해보세요 —
-                중심극한정리에 의한 근사입니다.
+                시행 n번 중 사건 A가 발생하는 횟수는 이항분포를 따릅니다(보라색 막대). ▶ 재생하면 n이 4부터 지금
+                설정한 시행 횟수({trialCount.toLocaleString('ko-KR')})까지 점점 늘어나면서, 막대들이 코랄색
+                정규분포 곡선에 가까워지는 중심극한정리의 근사 과정을 볼 수 있습니다.
               </p>
+              <ApproxAnimationControls
+                currentN={approxAnimation.currentN}
+                targetN={trialCount}
+                step={approxAnimation.step}
+                total={approxAnimation.total}
+                playing={approxAnimation.playing}
+                speed={approxAnimation.speed}
+                onSpeedChange={approxAnimation.setSpeed}
+                onPlayFromStart={approxAnimation.playFromStart}
+                onPause={approxAnimation.pause}
+                onResume={approxAnimation.resume}
+                onSkipToEnd={approxAnimation.skipToEnd}
+                onStepForward={approxAnimation.stepForward}
+                onStepBack={approxAnimation.stepBack}
+              />
               <NormalApproxChart
-                n={trialCount}
+                n={approxAnimation.currentN}
                 p={probability.decimal}
-                observedHits={animation.revealed >= trialCount ? hits : null}
+                observedHits={approxAnimation.atTarget && animation.revealed >= trialCount ? hits : null}
               />
             </section>
           )}
