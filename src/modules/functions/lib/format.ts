@@ -41,29 +41,6 @@ export function leadingCoefficient(value: number): string {
   return String(r)
 }
 
-const SUBSCRIPT_CHARS: Record<string, string> = {
-  '0': '₀',
-  '1': '₁',
-  '2': '₂',
-  '3': '₃',
-  '4': '₄',
-  '5': '₅',
-  '6': '₆',
-  '7': '₇',
-  '8': '₈',
-  '9': '₉',
-  '-': '₋',
-}
-
-/** Renders a number using Unicode subscript digits, e.g. for "log₂" — the base of a
- *  logarithm read as a subscript rather than a same-size trailing number. */
-export function subscriptNumber(value: number): string {
-  return String(round(value))
-    .split('')
-    .map((ch) => SUBSCRIPT_CHARS[ch] ?? ch)
-    .join('')
-}
-
 /** The "b(x - p)" argument inside sin/cos/tan — drops the b-multiplier when b = 1
  *  and the parentheses around x when p = 0, same "don't write what a student
  *  wouldn't" spirit as shiftedX. */

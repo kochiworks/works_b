@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-
 export type FunctionCategory = 'polynomial' | 'rationalIrrational' | 'expLog' | 'trig'
 
 export type FunctionKind =
@@ -77,11 +75,9 @@ export interface FunctionKindConfig {
   /** y = f(x), or null where the function is undefined at x (asymptote, domain
    *  restriction) — the curve renderer breaks the drawn path there. */
   evaluate: (values: CoefficientValues, x: number) => number | null
-  /** The equation in textbook notation, filled in with the current coefficient
-   *  values, e.g. "y = 2(x - 1)² + 3" — a ReactNode rather than a plain string since
-   *  fractions, radicals, and exponents need actual stacked/raised typesetting
-   *  (see components/MathNotation.tsx), not just characters in a row. */
-  equationText: (values: CoefficientValues) => ReactNode
+  /** The equation in textbook notation, as LaTeX source for KaTeX — e.g.
+   *  "y = 2(x - 1)^2 + 3". */
+  equationText: (values: CoefficientValues) => string
   /** Domain/range/asymptote notes for the current coefficients — the "무엇을
    *  관찰해야 하는지" hint that ties the slider back to the textbook definition. */
   featuresText: (values: CoefficientValues) => string

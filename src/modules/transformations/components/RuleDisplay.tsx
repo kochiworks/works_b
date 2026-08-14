@@ -1,5 +1,6 @@
-import { circleEquationText, lineEquationText, quadraticEquationText, transformQuadratic } from '../lib/equationShapes'
-import { transformRuleText, transformSummary } from '../lib/transforms'
+import { Katex } from './Katex'
+import { circleEquationTex, lineEquationTex, quadraticEquationTex, transformQuadratic } from '../lib/equationShapes'
+import { transformRuleTex, transformSummary } from '../lib/transforms'
 import { VERTEX_NAMES } from '../lib/types'
 import type { Point, ShapeKind, TransformParams } from '../lib/types'
 
@@ -36,29 +37,29 @@ export function RuleDisplay({
       </div>
       <div className="formula-row">
         <span className="formula-eq">규칙</span>
-        <span className="formula-expression">{transformRuleText(params)}</span>
+        <Katex tex={transformRuleTex(params)} className="formula-expression" />
       </div>
 
       {shapeKind === 'line' && (
         <EquationCompare
-          before={lineEquationText(points[0], points[1])}
-          after={lineEquationText(transformedPoints[0], transformedPoints[1])}
+          before={lineEquationTex(points[0], points[1])}
+          after={lineEquationTex(transformedPoints[0], transformedPoints[1])}
           hidden={hidden}
         />
       )}
 
       {shapeKind === 'circle' && (
         <EquationCompare
-          before={circleEquationText(points[0], circleRadius)}
-          after={circleEquationText(transformedPoints[0], circleRadius)}
+          before={circleEquationTex(points[0], circleRadius)}
+          after={circleEquationTex(transformedPoints[0], circleRadius)}
           hidden={hidden}
         />
       )}
 
       {quadAfter && (
         <EquationCompare
-          before={quadraticEquationText(quadA, quadVertex)}
-          after={quadraticEquationText(quadAfter.a, quadAfter.vertex)}
+          before={quadraticEquationTex(quadA, quadVertex)}
+          after={quadraticEquationTex(quadAfter.a, quadAfter.vertex)}
           hidden={hidden}
         />
       )}
@@ -107,11 +108,11 @@ function EquationCompare({ before, after, hidden }: { before: string; after: str
     <div className="equation-compare">
       <div className="equation-compare-row">
         <span className="equation-compare-label">이동 전</span>
-        <span className="equation-compare-value">{before}</span>
+        <Katex tex={before} className="equation-compare-value" />
       </div>
       <div className="equation-compare-row">
         <span className="equation-compare-label">이동 후</span>
-        <span className={hidden ? 'equation-compare-value is-hidden' : 'equation-compare-value'}>{after}</span>
+        <Katex tex={after} className={hidden ? 'equation-compare-value is-hidden' : 'equation-compare-value'} />
       </div>
     </div>
   )

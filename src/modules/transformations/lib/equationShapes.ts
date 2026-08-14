@@ -51,9 +51,9 @@ export function farLinePoints(p1: Point, p2: Point): [Point, Point] {
   ]
 }
 
-/** Reads a line's equation back out of two points on it — "y = 2x - 3" form, or
- *  "x = 4" for a (near-)vertical result. */
-export function lineEquationText(p1: Point, p2: Point): string {
+/** Reads a line's equation back out of two points on it, as LaTeX source for KaTeX —
+ *  "y = 2x - 3" form, or "x = 4" for a (near-)vertical result. */
+export function lineEquationTex(p1: Point, p2: Point): string {
   const dx = p2.x - p1.x
   if (Math.abs(dx) < 1e-6) {
     return `x = ${round(p1.x)}`
@@ -84,14 +84,16 @@ export function transformQuadratic(a: number, vertex: Point, params: TransformPa
   return { a: flips ? -a : a, vertex: applyTransform(vertex, params) }
 }
 
-/** "(x - cx)² + (y - cy)² = r²" — used for the before/after comparison in RuleDisplay. */
-export function circleEquationText(center: Point, radius: number): string {
-  return `(x ${axisTerm(center.x)})² + (y ${axisTerm(center.y)})² = ${round(radius)}²`
+/** "(x - cx)² + (y - cy)² = r²" as LaTeX source — used for the before/after
+ *  comparison in RuleDisplay. */
+export function circleEquationTex(center: Point, radius: number): string {
+  return `(x ${axisTerm(center.x)})^2 + (y ${axisTerm(center.y)})^2 = ${round(radius)}^2`
 }
 
-/** "y = a(x - p)² + q" in vertex form — used for the before/after comparison in RuleDisplay. */
-export function quadraticEquationText(a: number, vertex: Point): string {
-  return `y = ${round(a)}(x ${axisTerm(vertex.x)})² ${formatIntercept(vertex.y)}`.trimEnd()
+/** "y = a(x - p)² + q" in vertex form, as LaTeX source — used for the before/after
+ *  comparison in RuleDisplay. */
+export function quadraticEquationTex(a: number, vertex: Point): string {
+  return `y = ${round(a)}(x ${axisTerm(vertex.x)})^2 ${formatIntercept(vertex.y)}`.trimEnd()
 }
 
 function round(n: number): number {

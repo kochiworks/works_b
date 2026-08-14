@@ -1,3 +1,4 @@
+import { Katex } from './Katex'
 import type { CoefficientValues, FunctionKindConfig } from '../lib/types'
 
 interface Props {
@@ -11,7 +12,7 @@ export function EquationDisplay({ config, values }: Props) {
   return (
     <div className="formula-card">
       <div className="formula-row">
-        <span className="formula-expression formula-expression--large">{config.equationText(values)}</span>
+        <Katex tex={config.equationText(values)} className="formula-expression--large" />
       </div>
       <p className="hint">{config.featuresText(values)}</p>
     </div>

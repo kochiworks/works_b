@@ -1,3 +1,4 @@
+import { Katex } from './Katex'
 import type { ProbabilityBreakdown } from '../lib/probability'
 
 interface Props {
@@ -22,23 +23,16 @@ export function ProbabilityFormula({ eventLabel, probability }: Props) {
 
   const { favorable, total, simplified, decimal, percent } = probability
 
+  const fractions = [`\\dfrac{n(A)}{n(S)}`, `\\dfrac{${favorable}}{${total}}`]
+  if (simplified.den !== total) {
+    fractions.push(`\\dfrac{${simplified.num}}{${simplified.den}}`)
+  }
+  const tex = `P(A) = ${fractions.join(' = ')} = ${decimal.toFixed(3)}\\ (${percent}\\%)`
+
   return (
     <div className="formula-card">
       <div className="formula-row">
-        <span className="formula-notation">P(A)</span>
-        <span className="formula-eq">=</span>
-        <span className="formula-expression">
-          n(A) / n(S) = {favorable} / {total}
-        </span>
-        <span className="formula-eq">=</span>
-        <span className="formula-value">
-          {simplified.den !== total ? (
-            <>
-              {simplified.num}/{simplified.den} ={' '}
-            </>
-          ) : null}
-          {decimal.toFixed(3)} ({percent}%)
-        </span>
+        <Katex tex={tex} className="formula-notation" />
       </div>
       <p className="hint">사건 A: {eventLabel}</p>
     </div>

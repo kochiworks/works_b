@@ -1,3 +1,4 @@
+import { Katex } from './Katex'
 import { formulaBreakdown } from '../lib/formulas'
 import type { Mode } from '../lib/types'
 
@@ -14,18 +15,14 @@ interface Props {
  *  This is also where students derive the final count, so the "정답 가리기" toggle
  *  that blurs the resulting value lives right here. */
 export function FormulaDisplay({ mode, n, r, hidden, onToggleHidden }: Props) {
-  const { symbol, expression, value } = formulaBreakdown(mode, n, r)
+  const { symbolTex, expressionTex, value } = formulaBreakdown(mode, n, r)
 
   return (
     <div className="formula-card">
       <div className="formula-row">
-        <span className="formula-notation">
-          <sub>{n}</sub>
-          <span className="formula-symbol">{symbol}</span>
-          <sub>{r}</sub>
-        </span>
+        <Katex tex={`{}_{${n}}${symbolTex}_{${r}}`} className="formula-notation" />
         <span className="formula-eq">=</span>
-        <span className={hidden ? 'formula-expression is-hidden' : 'formula-expression'}>{expression}</span>
+        <Katex tex={expressionTex} className={hidden ? 'formula-expression is-hidden' : 'formula-expression'} />
         <span className="formula-eq">=</span>
         <span className={hidden ? 'formula-value is-hidden' : 'formula-value'}>
           {value.toLocaleString('ko-KR')}

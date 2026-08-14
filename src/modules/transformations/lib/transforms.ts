@@ -121,25 +121,26 @@ function signed(n: number): string {
   return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`
 }
 
-/** The coordinate rule in textbook notation, e.g. "(x, y) → (x+3, y-2)". */
-export function transformRuleText(params: TransformParams): string {
+/** The coordinate rule in textbook notation, as LaTeX source for KaTeX — e.g.
+ *  "(x, y) \to (x+3, y-2)". */
+export function transformRuleTex(params: TransformParams): string {
   switch (params.type) {
     case 'translate':
-      return `(x, y) → (x ${signed(params.dx)}, y ${signed(params.dy)})`
+      return `(x, y) \\to (x ${signed(params.dx)}, y ${signed(params.dy)})`
     case 'reflect':
       switch (params.axis) {
         case 'x':
-          return '(x, y) → (x, -y)'
+          return '(x, y) \\to (x, -y)'
         case 'y':
-          return '(x, y) → (-x, y)'
+          return '(x, y) \\to (-x, y)'
         case 'origin':
-          return '(x, y) → (-x, -y)'
+          return '(x, y) \\to (-x, -y)'
         case 'yEqualsX':
-          return '(x, y) → (y, x)'
+          return '(x, y) \\to (y, x)'
       }
       break
     case 'rotate':
-      return `(x, y) → (${params.angle === 90 ? '-y, x' : params.angle === 180 ? '-x, -y' : 'y, -x'})`
+      return `(x, y) \\to (${params.angle === 90 ? '-y, x' : params.angle === 180 ? '-x, -y' : 'y, -x'})`
   }
 }
 

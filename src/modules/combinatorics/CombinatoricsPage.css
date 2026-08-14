@@ -167,24 +167,11 @@
   gap: 10px;
 }
 
+/* KaTeX renders its own glyphs/metrics — this just sets the size and lets KaTeX's
+   math-mode color inherit from it (KaTeX text is currentColor by default). */
 .formula-notation {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.4rem;
   color: var(--accent-strong);
-}
-
-.formula-notation sub {
-  font-size: 0.6em;
-}
-
-/* Serif fallback specifically for the P/C/Π/H symbol: the UI's sans-serif stack
-   (Pretendard/-apple-system) renders the Greek Π with a squat, rounded design at
-   this weight that reads as a lowercase Latin letter at a glance. A classical serif
-   draws Π with the flat-topped, evenly-weighted strokes students expect from the
-   textbook symbol, and every platform ships a serif with that Greek glyph. */
-.formula-symbol {
-  font-family: 'STIX Two Math', 'Cambria Math', Cambria, Georgia, 'Times New Roman', serif;
-  font-weight: 700;
 }
 
 .formula-eq {

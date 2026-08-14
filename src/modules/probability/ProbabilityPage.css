@@ -149,29 +149,11 @@
   gap: 10px;
 }
 
+/* KaTeX renders its own glyphs/metrics — this just sets the size and lets KaTeX's
+   math-mode color inherit from it (KaTeX text is currentColor by default). */
 .formula-notation {
   font-size: 1.3rem;
-  font-weight: 800;
   color: var(--accent-strong);
-}
-
-.formula-eq {
-  color: var(--text-faint);
-  font-weight: 700;
-}
-
-.formula-expression {
-  font-size: 1.02rem;
-  font-weight: 700;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-
-.formula-value {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
 }
 
 /* --- Steppers (coin/dice/ball counts) --- */
