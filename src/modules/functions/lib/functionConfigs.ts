@@ -70,8 +70,8 @@ const rational: FunctionKindConfig = {
   category: 'rationalIrrational',
   coefficients: [
     { key: 'a', label: '계수 a', min: -6, max: 6, step: 0.5, default: 2, disallowZero: true },
-    { key: 'p', label: '점근선 x = p', min: -6, max: 6, step: 1, default: 1 },
-    { key: 'q', label: '점근선 y = q', min: -6, max: 6, step: 1, default: 0 },
+    { key: 'p', label: '점근선 x좌표 p', min: -6, max: 6, step: 1, default: 1 },
+    { key: 'q', label: '점근선 y좌표 q', min: -6, max: 6, step: 1, default: 0 },
   ],
   evaluate: (v, x) => {
     const p = v.p ?? 1
@@ -109,7 +109,7 @@ const exponential: FunctionKindConfig = {
     { key: 'a', label: '계수 a', min: -3, max: 3, step: 0.5, default: 1, disallowZero: true },
     { key: 'b', label: '밑 b', min: 0.2, max: 4, step: 0.1, default: 2, disallowOne: true },
     { key: 'p', label: 'x축 방향 이동 p', min: -6, max: 6, step: 1, default: 0 },
-    { key: 'q', label: '점근선 y = q', min: -6, max: 6, step: 1, default: 0 },
+    { key: 'q', label: '점근선 y좌표 q', min: -6, max: 6, step: 1, default: 0 },
   ],
   evaluate: (v, x) => {
     const b = v.b ?? 2
@@ -132,7 +132,7 @@ const logarithmic: FunctionKindConfig = {
   coefficients: [
     { key: 'a', label: '계수 a', min: -3, max: 3, step: 0.5, default: 1, disallowZero: true },
     { key: 'b', label: '밑 b', min: 0.2, max: 4, step: 0.1, default: 2, disallowOne: true },
-    { key: 'p', label: '점근선 x = p', min: -6, max: 6, step: 1, default: 0 },
+    { key: 'p', label: '점근선 x좌표 p', min: -6, max: 6, step: 1, default: 0 },
     { key: 'q', label: 'y축 방향 이동 q', min: -6, max: 6, step: 1, default: 0 },
   ],
   evaluate: (v, x) => {
