@@ -165,7 +165,7 @@ const sine: FunctionKindConfig = {
   coefficients: [
     { key: 'a', label: '진폭 a', min: -4, max: 4, step: 0.5, default: 2, disallowZero: true },
     { key: 'b', label: '주기 관련 b', min: 0.5, max: 3, step: 0.5, default: 1, disallowZero: true },
-    { key: 'p', label: '위상 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
+    { key: 'p', label: 'x축 방향 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
     { key: 'q', label: 'y축 방향 이동 q', min: -4, max: 4, step: 0.5, default: 0 },
   ],
   evaluate: (v, x) => (v.a ?? 2) * Math.sin((v.b ?? 1) * (x - (v.p ?? 0))) + (v.q ?? 0),
@@ -185,7 +185,7 @@ const cosine: FunctionKindConfig = {
   coefficients: [
     { key: 'a', label: '진폭 a', min: -4, max: 4, step: 0.5, default: 2, disallowZero: true },
     { key: 'b', label: '주기 관련 b', min: 0.5, max: 3, step: 0.5, default: 1, disallowZero: true },
-    { key: 'p', label: '위상 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
+    { key: 'p', label: 'x축 방향 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
     { key: 'q', label: 'y축 방향 이동 q', min: -4, max: 4, step: 0.5, default: 0 },
   ],
   evaluate: (v, x) => (v.a ?? 2) * Math.cos((v.b ?? 1) * (x - (v.p ?? 0))) + (v.q ?? 0),
@@ -205,7 +205,7 @@ const tangent: FunctionKindConfig = {
   coefficients: [
     { key: 'a', label: '계수 a', min: -4, max: 4, step: 0.5, default: 1, disallowZero: true },
     { key: 'b', label: '주기 관련 b', min: 0.5, max: 3, step: 0.5, default: 1, disallowZero: true },
-    { key: 'p', label: '위상 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
+    { key: 'p', label: 'x축 방향 이동 p', min: -6, max: 6, step: 0.5, default: 0 },
     { key: 'q', label: 'y축 방향 이동 q', min: -4, max: 4, step: 0.5, default: 0 },
   ],
   evaluate: (v, x) => {
