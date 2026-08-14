@@ -26,9 +26,12 @@ interface Props {
   animatedPoints: Point[]
   /** Only meaningful for shapeKind === 'circle' (radius is transform-invariant). */
   radius?: number
+  /** Index of the vertex currently mid-move in the sequential per-point animation
+   *  (polygon shapes only); -1/undefined when nothing should be highlighted. */
+  activeIndex?: number
 }
 
-export function CoordinateGrid({ shapeKind, points, animatedPoints, radius }: Props) {
+export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, activeIndex = -1 }: Props) {
   const isPolygon = shapeKind === 'point' || shapeKind === 'segment' || shapeKind === 'triangle' || shapeKind === 'quad'
   const closed = isClosedShape(shapeKind)
   const edges = isPolygon ? edgesFor(points.length, closed) : []
@@ -89,7 +92,14 @@ export function CoordinateGrid({ shapeKind, points, animatedPoints, radius }: Pr
       <ShapeOutline shapeKind={shapeKind} screenPoints={originalScreen} edges={edges} radius={radius} variant="original" />
 
       {/* animated shape (moves with progress) */}
-      <ShapeOutline shapeKind={shapeKind} screenPoints={animatedScreen} edges={edges} radius={radius} variant="animated" />
+      <ShapeOutline
+        shapeKind={shapeKind}
+        screenPoints={animatedScreen}
+        edges={edges}
+        radius={radius}
+        variant="animated"
+        activeIndex={activeIndex}
+      />
     </svg>
   )
 }
@@ -100,9 +110,10 @@ interface ShapeOutlineProps {
   edges: [number, number][]
   radius?: number
   variant: 'original' | 'animated'
+  activeIndex?: number
 }
 
-function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant }: ShapeOutlineProps) {
+function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeIndex = -1 }: ShapeOutlineProps) {
   const isOriginal = variant === 'original'
   const stroke = isOriginal ? '#b6b2d6' : '#ff9d87'
   const strokeStyle = isOriginal ? '5 4' : undefined
@@ -178,23 +189,35 @@ function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant }: Shape
           strokeDasharray={strokeStyle}
         />
       ))}
-      {screenPoints.map((p, i) => (
-        <g key={i}>
-          <circle
-            className={vertexClass}
-            cx={p.x}
-            cy={p.y}
-            r={isOriginal ? 5 : 5.5}
-            fill={vertexFill}
-            stroke={vertexStroke}
-            strokeWidth={2}
-          />
-          <text x={p.x + 9} y={p.y - 7} fontSize={12} fontWeight={700} fill={labelFill}>
-            {VERTEX_NAMES[i]}
-            {isOriginal ? '' : "'"}
-          </text>
-        </g>
-      ))}
+      {screenPoints.map((p, i) => {
+        const isActive = !isOriginal && i === activeIndex
+        return (
+          <g key={i}>
+            {isActive && (
+              <circle className="shape-vertex-pulse" cx={p.x} cy={p.y} r={9} fill="none" stroke="#ff9d87" strokeWidth={2} />
+            )}
+            <circle
+              className={vertexClass}
+              cx={p.x}
+              cy={p.y}
+              r={isOriginal ? 5 : isActive ? 6.5 : 5.5}
+              fill={vertexFill}
+              stroke={isActive ? '#c1543f' : vertexStroke}
+              strokeWidth={isActive ? 2.5 : 2}
+            />
+            <text
+              x={p.x + 9}
+              y={p.y - 7}
+              fontSize={isActive ? 13 : 12}
+              fontWeight={700}
+              fill={labelFill}
+            >
+              {VERTEX_NAMES[i]}
+              {isOriginal ? '' : "'"}
+            </text>
+          </g>
+        )
+      })}
     </g>
   )
 }

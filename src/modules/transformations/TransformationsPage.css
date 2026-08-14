@@ -311,6 +311,26 @@
   transition: none;
 }
 
+/* Ring pulsing around whichever vertex is currently being carried through the
+   transform in the sequential per-point animation — makes "this point is moving
+   right now, the others are waiting their turn" legible at a glance. */
+@keyframes vertex-pulse {
+  0% {
+    opacity: 0.9;
+    r: 7;
+  }
+  100% {
+    opacity: 0;
+    r: 13;
+  }
+}
+
+.shape-vertex-pulse {
+  animation: vertex-pulse 700ms ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 /* --- Equation-based shapes (line / circle / quadratic) rule comparison --- */
 
 .equation-compare {

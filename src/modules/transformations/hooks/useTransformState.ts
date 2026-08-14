@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import { linePoints, quadraticPoints } from '../lib/equationShapes'
 import { SHAPE_PRESETS } from '../lib/presetShapes'
-import { applyTransform, interpolatePoint } from '../lib/transforms'
-import { isTransformAllowedForShape } from '../lib/types'
+import { applyTransform, interpolatePoint, sequentialProgress } from '../lib/transforms'
+import { SHAPE_FAMILY, isTransformAllowedForShape } from '../lib/types'
 import type { Point, ReflectionAxis, RotationAngle, ShapeKind, TransformParams, TransformType } from '../lib/types'
 
 export const GRID_MIN = -8
@@ -99,9 +99,30 @@ export function useTransformState() {
 
   const transformedPoints = useMemo(() => points.map((p) => applyTransform(p, params)), [points, params])
 
+  // Polygon-family shapes (point/segment/triangle/quad) are made of a small set of
+  // named vertices a student can point at — for those, each vertex is carried through
+  // the transform one at a time (sequentialProgress) so the animation shows "point A
+  // moves, then point B, then point C" rather than the whole outline blending at once.
+  // Equation-family shapes (line/circle/quadratic) are a locus, not a handful of named
+  // points, so their defining points still move in lockstep as a single curve.
+  const isSequential = SHAPE_FAMILY[shapeKind] === 'polygon'
   const pointsAtProgress = useCallback(
-    (t: number) => points.map((p) => interpolatePoint(p, params, t)),
-    [points, params],
+    (t: number) =>
+      points.map((p, i) => interpolatePoint(p, params, isSequential ? sequentialProgress(i, points.length, t) : t)),
+    [points, params, isSequential],
+  )
+
+  /** Which vertex is currently mid-move (polygon shapes only), for highlighting it in
+   *  the grid — -1 when nothing is animating sequentially (equation shapes, or once
+   *  every vertex has finished). */
+  const activeVertexIndex = useCallback(
+    (t: number) => {
+      if (!isSequential || points.length <= 1) return -1
+      if (t <= 0 || t >= 1) return -1
+      const index = Math.floor(t * points.length)
+      return Math.min(index, points.length - 1)
+    },
+    [isSequential, points.length],
   )
 
   return {
@@ -130,5 +151,6 @@ export function useTransformState() {
     points,
     transformedPoints,
     pointsAtProgress,
+    activeVertexIndex,
   }
 }

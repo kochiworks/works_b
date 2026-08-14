@@ -71,6 +71,28 @@ export function interpolatePoint(p: Point, params: TransformParams, t: number): 
   }
 }
 
+/**
+ * Splits the overall [0, 1] animation progress into `count` equal back-to-back
+ * phases, one per point, and returns *this point's own* local progress within its
+ * phase — 0 before its turn, 1 once its turn has passed, and a live 0→1 ramp during
+ * its turn. This is what makes the animation show each point of the shape being
+ * carried by the transform one at a time (point 0 finishes moving, then point 1
+ * starts, ...) instead of every point sliding in lockstep like a single blended
+ * shape — the pointwise nature of a transform rule is the thing being demonstrated,
+ * so watching one point complete its move before the next begins is the more
+ * mathematically legible animation, even though the in-between shape is briefly
+ * distorted (some vertices already moved, some not).
+ */
+export function sequentialProgress(index: number, count: number, t: number): number {
+  if (count <= 1) return Math.min(Math.max(t, 0), 1)
+  const clampedT = Math.min(Math.max(t, 0), 1)
+  const start = index / count
+  const end = (index + 1) / count
+  if (clampedT <= start) return 0
+  if (clampedT >= end) return 1
+  return (clampedT - start) / (end - start)
+}
+
 function signed(n: number): string {
   return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`
 }
