@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { CombinatoricsPage } from './combinatorics/CombinatoricsPage'
+import { FunctionsPage } from './functions/FunctionsPage'
 import { ProbabilityPage } from './probability/ProbabilityPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
 
@@ -51,7 +52,8 @@ export const MODULES: ModuleMeta[] = [
     description: '계수를 조절하며 그래프가 실시간으로 바뀌는 모습을 관찰합니다.',
     icon: '📈',
     accent: 'mint',
-    status: 'soon',
+    status: 'available',
+    Component: FunctionsPage,
   },
   {
     id: 'transformations',
