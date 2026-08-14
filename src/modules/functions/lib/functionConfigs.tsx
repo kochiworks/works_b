@@ -1,4 +1,5 @@
-import { angleArgument, leadingCoefficient, round, shiftedX, signedTerm, subscriptNumber } from './format'
+import { Frac, Radical } from '../components/MathNotation'
+import { angleArgument, leadingCoefficient, round, shiftedX, shiftedXPlain, signedTerm, subscriptNumber } from './format'
 import type { CoefficientSpec, CoefficientValues, FunctionKind, FunctionKindConfig } from './types'
 
 const linear: FunctionKindConfig = {
@@ -78,7 +79,12 @@ const rational: FunctionKindConfig = {
     if (Math.abs(x - p) < 1e-9) return null
     return (v.a ?? 2) / (x - p) + (v.q ?? 0)
   },
-  equationText: (v) => `y = ${round(v.a ?? 2)}/${shiftedX(v.p ?? 1)}${signedTerm(v.q ?? 0)}`,
+  equationText: (v) => (
+    <>
+      y = <Frac num={round(v.a ?? 2)} den={shiftedXPlain(v.p ?? 1)} />
+      {signedTerm(v.q ?? 0)}
+    </>
+  ),
   featuresText: (v) => `점근선: x = ${round(v.p ?? 1)}, y = ${round(v.q ?? 0)}. 정의역: x ≠ ${round(v.p ?? 1)}, 치역: y ≠ ${round(v.q ?? 0)}`,
 }
 
@@ -95,7 +101,13 @@ const irrational: FunctionKindConfig = {
     if (x < p) return null
     return (v.a ?? 1) * Math.sqrt(x - p) + (v.q ?? 0)
   },
-  equationText: (v) => `y = ${leadingCoefficient(v.a ?? 1)}√${shiftedX(v.p ?? 0)}${signedTerm(v.q ?? 0)}`,
+  equationText: (v) => (
+    <>
+      y = {leadingCoefficient(v.a ?? 1)}
+      <Radical>{shiftedXPlain(v.p ?? 0)}</Radical>
+      {signedTerm(v.q ?? 0)}
+    </>
+  ),
   featuresText: (v) => {
     const a = v.a ?? 1
     return `정의역: x ≥ ${round(v.p ?? 0)}, 치역: y ${a > 0 ? '≥' : '≤'} ${round(v.q ?? 0)}. 시작점 (${round(v.p ?? 0)}, ${round(v.q ?? 0)})에서 ${a > 0 ? '증가' : '감소'}합니다.`
@@ -116,7 +128,14 @@ const exponential: FunctionKindConfig = {
     if (b <= 0) return null
     return (v.a ?? 1) * b ** (x - (v.p ?? 0)) + (v.q ?? 0)
   },
-  equationText: (v) => `y = ${leadingCoefficient(v.a ?? 1)}${round(v.b ?? 2)}^${shiftedX(v.p ?? 0)}${signedTerm(v.q ?? 0)}`,
+  equationText: (v) => (
+    <>
+      y = {leadingCoefficient(v.a ?? 1)}
+      {round(v.b ?? 2)}
+      <sup>{shiftedXPlain(v.p ?? 0)}</sup>
+      {signedTerm(v.q ?? 0)}
+    </>
+  ),
   featuresText: (v) => {
     const b = v.b ?? 2
     const a = v.a ?? 1

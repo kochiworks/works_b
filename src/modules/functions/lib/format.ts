@@ -22,6 +22,16 @@ export function shiftedX(p: number): string {
   return round(p) === 0 ? 'x' : `(x ${shiftedAxisTerm(p)})`
 }
 
+/** Same as shiftedX, but without the wrapping parentheses — for use inside a
+ *  fraction's denominator, under a radical, or in a superscript, where the visual
+ *  grouping (the fraction bar, the radical's vinculum, the raised baseline) already
+ *  does the job parentheses would otherwise do in plain running text. */
+export function shiftedXPlain(p: number): string {
+  const r = round(p)
+  if (r === 0) return 'x'
+  return r > 0 ? `x - ${r}` : `x + ${Math.abs(r)}`
+}
+
 /** "2" / "" (for a=1) / "-" (for a=-1) — a leading coefficient shown only when it's
  *  not the visually-implied ±1. */
 export function leadingCoefficient(value: number): string {

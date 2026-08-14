@@ -224,6 +224,46 @@
   color: var(--accent-strong);
 }
 
+/* Stacked fraction (numerator / rule / denominator) instead of "a/b" running text,
+   and a radical whose vinculum actually spans the radicand — see
+   components/MathNotation.tsx. Both inherit the surrounding text's color/weight via
+   currentColor so they match whichever formula card they're dropped into. */
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 3px;
+  line-height: 1.2;
+  font-size: 0.85em;
+}
+
+.math-frac-num {
+  padding: 0 4px 2px;
+  border-bottom: 2px solid currentColor;
+}
+
+.math-frac-den {
+  padding: 2px 4px 0;
+}
+
+.math-radical {
+  display: inline-flex;
+  align-items: flex-start;
+  vertical-align: middle;
+}
+
+.math-radical-sign {
+  font-size: 1.1em;
+  transform: translateY(-2px);
+}
+
+.math-radicand {
+  border-top: 2px solid currentColor;
+  padding: 1px 3px 0;
+  margin-left: 1px;
+}
+
 /* --- Graph panel --- */
 
 .grid-panel {
