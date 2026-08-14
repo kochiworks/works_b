@@ -41,6 +41,7 @@ export function TransformationsPage() {
     transformedPoints,
     pointsAtProgress,
     activeVertexIndex,
+    pointPhases,
   } = useTransformState()
 
   const animation = useAnimationProgress()
@@ -59,6 +60,7 @@ export function TransformationsPage() {
   const family = SHAPE_FAMILY[shapeKind]
   const animatedPoints = pointsAtProgress(animation.progress)
   const activeIndex = activeVertexIndex(animation.progress)
+  const phases = pointPhases(animation.progress)
 
   return (
     <div className="transformations-page">
@@ -152,6 +154,7 @@ export function TransformationsPage() {
                 animatedPoints={animatedPoints}
                 radius={isCircle ? circleRadius : undefined}
                 activeIndex={activeIndex}
+                pointPhases={phases}
               />
             </div>
           </section>

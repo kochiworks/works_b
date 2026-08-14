@@ -71,6 +71,29 @@ export function interpolatePoint(p: Point, params: TransformParams, t: number): 
   }
 }
 
+export type PointPhase = 'pending' | 'active' | 'done'
+
+interface PhaseInfo {
+  phase: PointPhase
+  localT: number
+}
+
+/** Shared boundary math behind sequentialProgress/sequentialPhase — see sequentialProgress
+ *  for the reasoning behind splitting [0, 1] into one phase per point. */
+function pointPhaseInfo(index: number, count: number, t: number): PhaseInfo {
+  const clampedT = Math.min(Math.max(t, 0), 1)
+  if (count <= 1) {
+    if (clampedT <= 0) return { phase: 'pending', localT: 0 }
+    if (clampedT >= 1) return { phase: 'done', localT: 1 }
+    return { phase: 'active', localT: clampedT }
+  }
+  const start = index / count
+  const end = (index + 1) / count
+  if (clampedT <= start) return { phase: 'pending', localT: 0 }
+  if (clampedT >= end) return { phase: 'done', localT: 1 }
+  return { phase: 'active', localT: (clampedT - start) / (end - start) }
+}
+
 /**
  * Splits the overall [0, 1] animation progress into `count` equal back-to-back
  * phases, one per point, and returns *this point's own* local progress within its
@@ -84,13 +107,14 @@ export function interpolatePoint(p: Point, params: TransformParams, t: number): 
  * distorted (some vertices already moved, some not).
  */
 export function sequentialProgress(index: number, count: number, t: number): number {
-  if (count <= 1) return Math.min(Math.max(t, 0), 1)
-  const clampedT = Math.min(Math.max(t, 0), 1)
-  const start = index / count
-  const end = (index + 1) / count
-  if (clampedT <= start) return 0
-  if (clampedT >= end) return 1
-  return (clampedT - start) / (end - start)
+  return pointPhaseInfo(index, count, t).localT
+}
+
+/** Which stage this point's turn is in — 'pending' (hasn't started, stays hidden so it
+ *  doesn't look like it "already arrived"), 'active' (mid-move, the one point currently
+ *  animating), or 'done' (landed — accumulates into the growing image shape). */
+export function sequentialPhase(index: number, count: number, t: number): PointPhase {
+  return pointPhaseInfo(index, count, t).phase
 }
 
 function signed(n: number): string {

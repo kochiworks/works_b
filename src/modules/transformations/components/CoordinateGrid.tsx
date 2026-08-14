@@ -1,5 +1,6 @@
 import { GRID_MAX, GRID_MIN } from '../hooks/useTransformState'
 import { isClosedShape } from '../lib/presetShapes'
+import type { PointPhase } from '../lib/transforms'
 import { VERTEX_NAMES } from '../lib/types'
 import type { Point, ShapeKind } from '../lib/types'
 
@@ -29,9 +30,16 @@ interface Props {
   /** Index of the vertex currently mid-move in the sequential per-point animation
    *  (polygon shapes only); -1/undefined when nothing should be highlighted. */
   activeIndex?: number
+  /** Per-vertex pending/active/done status (polygon shapes only) — a 'pending' vertex
+   *  is hidden from the animated layer entirely (it hasn't had its turn yet, so it
+   *  shouldn't already look "arrived"), and an edge only draws once both of its
+   *  endpoints are 'done' — so the image shape visibly accumulates point by point
+   *  instead of appearing all at once. undefined disables this and always shows
+   *  everything (used for equation shapes, which move together as one curve). */
+  pointPhases?: PointPhase[]
 }
 
-export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, activeIndex = -1 }: Props) {
+export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, activeIndex = -1, pointPhases }: Props) {
   const isPolygon = shapeKind === 'point' || shapeKind === 'segment' || shapeKind === 'triangle' || shapeKind === 'quad'
   const closed = isClosedShape(shapeKind)
   const edges = isPolygon ? edgesFor(points.length, closed) : []
@@ -99,6 +107,7 @@ export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, acti
         radius={radius}
         variant="animated"
         activeIndex={activeIndex}
+        pointPhases={pointPhases}
       />
     </svg>
   )
@@ -111,9 +120,10 @@ interface ShapeOutlineProps {
   radius?: number
   variant: 'original' | 'animated'
   activeIndex?: number
+  pointPhases?: PointPhase[]
 }
 
-function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeIndex = -1 }: ShapeOutlineProps) {
+function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeIndex = -1, pointPhases }: ShapeOutlineProps) {
   const isOriginal = variant === 'original'
   const stroke = isOriginal ? '#b6b2d6' : '#ff9d87'
   const strokeStyle = isOriginal ? '5 4' : undefined
@@ -173,31 +183,48 @@ function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeI
     )
   }
 
-  // point / segment / triangle / quad
+  // point / segment / triangle / quad. `phaseOf` defaults to 'done' (fully shown) —
+  // for the original reference shape (isOriginal) and for shapes without a phases
+  // array (nothing sequential going on), that reproduces the old "always show
+  // everything" behavior.
+  const phaseOf = (i: number): PointPhase => (isOriginal ? 'done' : (pointPhases?.[i] ?? 'done'))
+
   return (
     <g className={groupClass}>
-      {edges.map(([a, b]) => (
-        <line
-          key={`${a}-${b}`}
-          className={lineClass}
-          x1={screenPoints[a].x}
-          y1={screenPoints[a].y}
-          x2={screenPoints[b].x}
-          y2={screenPoints[b].y}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeDasharray={strokeStyle}
-        />
-      ))}
-      {screenPoints.map((p, i) => {
-        const isActive = !isOriginal && i === activeIndex
+      {edges.map(([a, b]) => {
+        // An edge only draws once BOTH endpoints have landed — otherwise it would
+        // connect a landed point to one still waiting at its pre-move spot, implying
+        // a shape that isn't really there yet. This is what makes the image shape
+        // visibly accumulate vertex by vertex instead of appearing all at once.
+        if (phaseOf(a) !== 'done' || phaseOf(b) !== 'done') return null
         return (
-          <g key={i}>
+          <line
+            key={`${a}-${b}`}
+            className={lineClass}
+            x1={screenPoints[a].x}
+            y1={screenPoints[a].y}
+            x2={screenPoints[b].x}
+            y2={screenPoints[b].y}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeDasharray={strokeStyle}
+          />
+        )
+      })}
+      {screenPoints.map((p, i) => {
+        const phase = phaseOf(i)
+        if (phase === 'pending') return null
+        const isActive = !isOriginal && i === activeIndex
+        const justLanded = !isOriginal && phase === 'done' && !!pointPhases
+        return (
+          // Keying on phase remounts the vertex the moment it flips active → done,
+          // which re-triggers the "landed" pop animation below.
+          <g key={`${i}-${phase}`}>
             {isActive && (
               <circle className="shape-vertex-pulse" cx={p.x} cy={p.y} r={9} fill="none" stroke="#ff9d87" strokeWidth={2} />
             )}
             <circle
-              className={vertexClass}
+              className={justLanded ? `${vertexClass} shape-vertex-landed` : vertexClass}
               cx={p.x}
               cy={p.y}
               r={isOriginal ? 5 : isActive ? 6.5 : 5.5}
@@ -205,13 +232,7 @@ function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeI
               stroke={isActive ? '#c1543f' : vertexStroke}
               strokeWidth={isActive ? 2.5 : 2}
             />
-            <text
-              x={p.x + 9}
-              y={p.y - 7}
-              fontSize={isActive ? 13 : 12}
-              fontWeight={700}
-              fill={labelFill}
-            >
+            <text x={p.x + 9} y={p.y - 7} fontSize={isActive ? 13 : 12} fontWeight={700} fill={labelFill}>
               {VERTEX_NAMES[i]}
               {isOriginal ? '' : "'"}
             </text>

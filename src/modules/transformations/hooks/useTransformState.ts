@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import { linePoints, quadraticPoints } from '../lib/equationShapes'
 import { SHAPE_PRESETS } from '../lib/presetShapes'
-import { applyTransform, interpolatePoint, sequentialProgress } from '../lib/transforms'
+import { applyTransform, interpolatePoint, sequentialPhase, sequentialProgress } from '../lib/transforms'
+import type { PointPhase } from '../lib/transforms'
 import { SHAPE_FAMILY, isTransformAllowedForShape } from '../lib/types'
 import type { Point, ReflectionAxis, RotationAngle, ShapeKind, TransformParams, TransformType } from '../lib/types'
 
@@ -125,6 +126,18 @@ export function useTransformState() {
     [isSequential, points.length],
   )
 
+  /** Per-vertex pending/active/done status (polygon shapes only) — lets the grid hide
+   *  a vertex until its turn, then have it accumulate at its landed position, instead
+   *  of showing every vertex's eventual image up front. undefined for equation shapes,
+   *  where all defining points always move together and nothing needs hiding. */
+  const pointPhases = useCallback(
+    (t: number): PointPhase[] | undefined => {
+      if (!isSequential) return undefined
+      return points.map((_, i) => sequentialPhase(i, points.length, t))
+    },
+    [isSequential, points],
+  )
+
   return {
     shapeKind,
     setShapeKind,
@@ -152,5 +165,6 @@ export function useTransformState() {
     transformedPoints,
     pointsAtProgress,
     activeVertexIndex,
+    pointPhases,
   }
 }
