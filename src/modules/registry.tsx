@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { CombinatoricsPage } from './combinatorics/CombinatoricsPage'
+import { ProbabilityPage } from './probability/ProbabilityPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
 
 export type ModuleAccent = 'violet' | 'mint' | 'peach' | 'sky' | 'lemon'
@@ -40,7 +41,8 @@ export const MODULES: ModuleMeta[] = [
     description: '동전 · 주사위 · 카드 실험을 시뮬레이션하며 확률 개념을 체험합니다.',
     icon: '🎯',
     accent: 'sky',
-    status: 'soon',
+    status: 'available',
+    Component: ProbabilityPage,
   },
   {
     id: 'functions',
