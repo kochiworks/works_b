@@ -20,21 +20,25 @@ function edgesFor(count: number, closed: boolean): [number, number][] {
 
 interface Props {
   shapeKind: ShapeKind
+  /** Fixed original points, shown as a dashed reference shape. */
   points: Point[]
-  transformedPoints: Point[]
-  hidden: boolean
+  /** Same points, at the current animation progress — this is what visibly moves. */
+  animatedPoints: Point[]
+  /** Only meaningful for shapeKind === 'circle' (radius is transform-invariant). */
+  radius?: number
 }
 
-export function CoordinateGrid({ shapeKind, points, transformedPoints, hidden }: Props) {
+export function CoordinateGrid({ shapeKind, points, animatedPoints, radius }: Props) {
+  const isPolygon = shapeKind === 'point' || shapeKind === 'segment' || shapeKind === 'triangle' || shapeKind === 'quad'
   const closed = isClosedShape(shapeKind)
-  const edges = edgesFor(points.length, closed)
+  const edges = isPolygon ? edgesFor(points.length, closed) : []
   const gridLines = []
   for (let v = GRID_MIN; v <= GRID_MAX; v++) {
     gridLines.push(v)
   }
 
   const originalScreen = points.map(toScreen)
-  const transformedScreen = transformedPoints.map(toScreen)
+  const animatedScreen = animatedPoints.map(toScreen)
   const origin = toScreen({ x: 0, y: 0 })
 
   return (
@@ -81,60 +85,116 @@ export function CoordinateGrid({ shapeKind, points, transformedPoints, hidden }:
         y
       </text>
 
-      {/* original shape */}
-      <g>
-        {edges.map(([a, b]) => (
-          <line
-            key={`orig-edge-${a}-${b}`}
-            x1={originalScreen[a].x}
-            y1={originalScreen[a].y}
-            x2={originalScreen[b].x}
-            y2={originalScreen[b].y}
-            stroke="#b6b2d6"
-            strokeWidth={2}
-            strokeDasharray="5 4"
-          />
-        ))}
-        {originalScreen.map((p, i) => (
-          <g key={`orig-${i}`}>
-            <circle cx={p.x} cy={p.y} r={5} fill="#ffffff" stroke="#8b7cf6" strokeWidth={2} />
-            <text x={p.x + 9} y={p.y - 7} fontSize={12} fontWeight={700} fill="#6d5ce3">
-              {VERTEX_NAMES[i]}
-            </text>
-          </g>
-        ))}
-      </g>
+      {/* original shape (fixed reference) */}
+      <ShapeOutline shapeKind={shapeKind} screenPoints={originalScreen} edges={edges} radius={radius} variant="original" />
 
-      {/* transformed shape */}
-      <g className={hidden ? 'shape-transformed is-hidden' : 'shape-transformed'}>
-        {edges.map(([a, b]) => (
-          <line
-            key={`trans-edge-${a}-${b}`}
-            className="shape-edge"
-            x1={transformedScreen[a].x}
-            y1={transformedScreen[a].y}
-            x2={transformedScreen[b].x}
-            y2={transformedScreen[b].y}
-            stroke="#ff9d87"
-            strokeWidth={2.5}
-          />
-        ))}
-        {transformedScreen.map((p, i) => (
-          <g key={`trans-${i}`}>
-            <circle className="shape-vertex" cx={p.x} cy={p.y} r={5.5} fill="#ff9d87" stroke="#e8735c" strokeWidth={2} />
-            <text
-              className="shape-vertex-label"
-              x={p.x + 9}
-              y={p.y - 7}
-              fontSize={12}
-              fontWeight={700}
-              fill="#c1543f"
-            >
-              {VERTEX_NAMES[i]}&apos;
-            </text>
-          </g>
-        ))}
-      </g>
+      {/* animated shape (moves with progress) */}
+      <ShapeOutline shapeKind={shapeKind} screenPoints={animatedScreen} edges={edges} radius={radius} variant="animated" />
     </svg>
+  )
+}
+
+interface ShapeOutlineProps {
+  shapeKind: ShapeKind
+  screenPoints: { x: number; y: number }[]
+  edges: [number, number][]
+  radius?: number
+  variant: 'original' | 'animated'
+}
+
+function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant }: ShapeOutlineProps) {
+  const isOriginal = variant === 'original'
+  const stroke = isOriginal ? '#b6b2d6' : '#ff9d87'
+  const strokeStyle = isOriginal ? '5 4' : undefined
+  const strokeWidth = isOriginal ? 2 : 2.5
+  const vertexFill = isOriginal ? '#ffffff' : '#ff9d87'
+  const vertexStroke = isOriginal ? '#8b7cf6' : '#e8735c'
+  const labelFill = isOriginal ? '#6d5ce3' : '#c1543f'
+  const groupClass = isOriginal ? undefined : 'shape-animated'
+  const lineClass = isOriginal ? undefined : 'shape-edge'
+  const vertexClass = isOriginal ? undefined : 'shape-vertex'
+
+  if (shapeKind === 'circle') {
+    const [center] = screenPoints
+    if (!center) return null
+    return (
+      <g className={groupClass}>
+        <circle
+          className={vertexClass}
+          cx={center.x}
+          cy={center.y}
+          r={(radius ?? 1) * SCALE}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeStyle}
+        />
+        <circle cx={center.x} cy={center.y} r={3} fill={vertexFill} stroke={vertexStroke} strokeWidth={1.5} />
+      </g>
+    )
+  }
+
+  if (shapeKind === 'line') {
+    const [p1, p2] = screenPoints
+    if (!p1 || !p2) return null
+    return (
+      <g className={groupClass}>
+        <line
+          className={lineClass}
+          x1={p1.x}
+          y1={p1.y}
+          x2={p2.x}
+          y2={p2.y}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeStyle}
+        />
+      </g>
+    )
+  }
+
+  if (shapeKind === 'quadratic') {
+    const d = screenPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    return (
+      <g className={groupClass}>
+        <path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeStyle} />
+      </g>
+    )
+  }
+
+  // point / segment / triangle / quad
+  return (
+    <g className={groupClass}>
+      {edges.map(([a, b]) => (
+        <line
+          key={`${a}-${b}`}
+          className={lineClass}
+          x1={screenPoints[a].x}
+          y1={screenPoints[a].y}
+          x2={screenPoints[b].x}
+          y2={screenPoints[b].y}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeStyle}
+        />
+      ))}
+      {screenPoints.map((p, i) => (
+        <g key={i}>
+          <circle
+            className={vertexClass}
+            cx={p.x}
+            cy={p.y}
+            r={isOriginal ? 5 : 5.5}
+            fill={vertexFill}
+            stroke={vertexStroke}
+            strokeWidth={2}
+          />
+          <text x={p.x + 9} y={p.y - 7} fontSize={12} fontWeight={700} fill={labelFill}>
+            {VERTEX_NAMES[i]}
+            {isOriginal ? '' : "'"}
+          </text>
+        </g>
+      ))}
+    </g>
   )
 }

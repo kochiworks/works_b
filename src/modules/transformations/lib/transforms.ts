@@ -41,6 +41,36 @@ export function applyTransform(p: Point, params: TransformParams): Point {
   }
 }
 
+/**
+ * The point's position partway (t ∈ [0, 1]) through the transform — this is what
+ * drives the build-up animation. Translation and reflection interpolate the
+ * coordinates directly (a reflection "slides" to its mirrored spot rather than
+ * flipping through a third dimension, which is the standard simplification for a
+ * 2D-only view). Rotation instead interpolates the *angle* and re-applies the
+ * rotation matrix at each step, so points sweep along the correct circular arc
+ * instead of cutting a straight line through the shape's interior.
+ */
+export function interpolatePoint(p: Point, params: TransformParams, t: number): Point {
+  const clampedT = Math.min(Math.max(t, 0), 1)
+  switch (params.type) {
+    case 'translate':
+      return translate(p, params.dx * clampedT, params.dy * clampedT)
+    case 'reflect': {
+      const end = reflect(p, params.axis)
+      return {
+        x: p.x + (end.x - p.x) * clampedT,
+        y: p.y + (end.y - p.y) * clampedT,
+      }
+    }
+    case 'rotate': {
+      const theta = ((params.angle * Math.PI) / 180) * clampedT
+      const cos = Math.cos(theta)
+      const sin = Math.sin(theta)
+      return { x: p.x * cos - p.y * sin, y: p.x * sin + p.y * cos }
+    }
+  }
+}
+
 function signed(n: number): string {
   return n >= 0 ? `+ ${n}` : `- ${Math.abs(n)}`
 }

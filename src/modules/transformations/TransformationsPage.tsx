@@ -1,35 +1,62 @@
 import { useEffect, useState } from 'react'
-import { ShapeSelector } from './components/ShapeSelector'
-import { VertexEditor } from './components/VertexEditor'
-import { TransformControls } from './components/TransformControls'
+import { AnimationControls } from './components/AnimationControls'
+import { CircleEditor } from './components/CircleEditor'
 import { CoordinateGrid } from './components/CoordinateGrid'
+import { LineEditor } from './components/LineEditor'
+import { QuadraticEditor } from './components/QuadraticEditor'
 import { RuleDisplay } from './components/RuleDisplay'
+import { ShapeSelector } from './components/ShapeSelector'
+import { TransformControls } from './components/TransformControls'
+import { VertexEditor } from './components/VertexEditor'
+import { useAnimationProgress } from './hooks/useAnimationProgress'
 import { useTransformState } from './hooks/useTransformState'
+import { SHAPE_FAMILY } from './lib/types'
 import './TransformationsPage.css'
 
 export function TransformationsPage() {
   const {
     shapeKind,
     setShapeKind,
-    points,
-    setPointCoord,
+    vertices,
+    setVertexCoord,
+    lineSlope,
+    setLineSlope,
+    lineIntercept,
+    setLineIntercept,
+    circleCenter,
+    setCircleCenterCoord,
+    circleRadius,
+    setCircleRadius,
+    quadA,
+    setQuadA,
+    quadVertex,
+    setQuadVertexCoord,
     params,
     setTransformType,
     setDx,
     setDy,
     setAxis,
     setAngle,
+    points,
     transformedPoints,
+    pointsAtProgress,
   } = useTransformState()
 
+  const animation = useAnimationProgress()
   const [answerHidden, setAnswerHidden] = useState(true)
 
-  // A new shape, moved vertex, or new transform choice re-hides the answer, same
-  // reasoning as the combinatorics module: a revealed answer shouldn't carry over
-  // to a new setup.
+  // A revealed quiz answer shouldn't carry over to a new setup, and a half-finished
+  // animation shouldn't either — both reset together whenever the shape, its
+  // defining points, or the chosen transform changes.
+  const isCircle = shapeKind === 'circle'
   useEffect(() => {
+    animation.reset()
     setAnswerHidden(true)
-  }, [shapeKind, points, params])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shapeKind, points, params, circleRadius])
+
+  const family = SHAPE_FAMILY[shapeKind]
+  const animatedPoints = pointsAtProgress(animation.progress)
 
   return (
     <div className="transformations-page">
@@ -41,8 +68,30 @@ export function TransformationsPage() {
       <div className="explorer-layout">
         <div className="settings-column">
           <ShapeSelector shapeKind={shapeKind} onChange={setShapeKind} />
-          <VertexEditor points={points} onChange={setPointCoord} />
+
+          {family === 'polygon' && <VertexEditor points={vertices} onChange={setVertexCoord} />}
+          {shapeKind === 'line' && (
+            <LineEditor
+              slope={lineSlope}
+              intercept={lineIntercept}
+              onSlopeChange={setLineSlope}
+              onInterceptChange={setLineIntercept}
+            />
+          )}
+          {isCircle && (
+            <CircleEditor
+              center={circleCenter}
+              radius={circleRadius}
+              onCenterChange={setCircleCenterCoord}
+              onRadiusChange={setCircleRadius}
+            />
+          )}
+          {shapeKind === 'quadratic' && (
+            <QuadraticEditor a={quadA} vertex={quadVertex} onAChange={setQuadA} onVertexChange={setQuadVertexCoord} />
+          )}
+
           <TransformControls
+            shapeKind={shapeKind}
             params={params}
             onTypeChange={setTransformType}
             onDxChange={setDx}
@@ -54,11 +103,29 @@ export function TransformationsPage() {
 
         <div className="result-column">
           <RuleDisplay
+            shapeKind={shapeKind}
             params={params}
             points={points}
             transformedPoints={transformedPoints}
+            circleRadius={circleRadius}
+            quadA={quadA}
+            quadVertex={quadVertex}
             hidden={answerHidden}
             onToggleHidden={() => setAnswerHidden((prev) => !prev)}
+          />
+
+          <AnimationControls
+            step={animation.step}
+            total={animation.total}
+            playing={animation.playing}
+            speed={animation.speed}
+            onSpeedChange={animation.setSpeed}
+            onPlayFromStart={animation.playFromStart}
+            onPause={animation.pause}
+            onResume={animation.resume}
+            onSkipToEnd={animation.skipToEnd}
+            onStepForward={animation.stepForward}
+            onStepBack={animation.stepBack}
           />
 
           <section className="panel grid-panel">
@@ -67,15 +134,15 @@ export function TransformationsPage() {
                 <span className="legend-dot legend-dot--original" /> 이동 전
               </span>
               <span className="legend-item">
-                <span className="legend-dot legend-dot--transformed" /> 이동 후
+                <span className="legend-dot legend-dot--transformed" /> 이동 중 · 이동 후
               </span>
             </div>
             <div className="grid-scroll">
               <CoordinateGrid
                 shapeKind={shapeKind}
                 points={points}
-                transformedPoints={transformedPoints}
-                hidden={answerHidden}
+                animatedPoints={animatedPoints}
+                radius={isCircle ? circleRadius : undefined}
               />
             </div>
           </section>

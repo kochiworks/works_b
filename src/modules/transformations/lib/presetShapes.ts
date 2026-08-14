@@ -1,6 +1,8 @@
 import type { Point, ShapeKind } from './types'
 
-export const SHAPE_PRESETS: Record<ShapeKind, Point[]> = {
+/** Only the polygon-family shapes need a preset vertex list — line/circle/quadratic are
+ *  defined by their own equation parameters (see useTransformState's DEFAULT_LINE etc). */
+export const SHAPE_PRESETS: Partial<Record<ShapeKind, Point[]>> = {
   point: [{ x: 2, y: 3 }],
   segment: [
     { x: -3, y: -1 },

@@ -1,7 +1,7 @@
 import { SHAPE_LABELS } from '../lib/types'
 import type { ShapeKind } from '../lib/types'
 
-const SHAPES: ShapeKind[] = ['point', 'segment', 'triangle', 'quad']
+const SHAPES: ShapeKind[] = ['point', 'segment', 'triangle', 'quad', 'line', 'circle', 'quadratic']
 
 interface Props {
   shapeKind: ShapeKind

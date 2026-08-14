@@ -1,12 +1,13 @@
 import { GRID_MAX, GRID_MIN } from '../hooks/useTransformState'
-import { REFLECTION_AXIS_LABELS, TRANSFORM_TYPE_LABELS } from '../lib/types'
-import type { ReflectionAxis, RotationAngle, TransformParams, TransformType } from '../lib/types'
+import { REFLECTION_AXIS_LABELS, TRANSFORM_TYPE_LABELS, isTransformAllowedForShape } from '../lib/types'
+import type { ReflectionAxis, RotationAngle, ShapeKind, TransformParams, TransformType } from '../lib/types'
 
 const TRANSFORM_TYPES: TransformType[] = ['translate', 'reflect', 'rotate']
 const AXES: ReflectionAxis[] = ['x', 'y', 'origin', 'yEqualsX']
 const ANGLES: RotationAngle[] = [90, 180, 270]
 
 interface Props {
+  shapeKind: ShapeKind
   params: TransformParams
   onTypeChange: (type: TransformType) => void
   onDxChange: (dx: number) => void
@@ -15,12 +16,23 @@ interface Props {
   onAngleChange: (angle: RotationAngle) => void
 }
 
-export function TransformControls({ params, onTypeChange, onDxChange, onDyChange, onAxisChange, onAngleChange }: Props) {
+export function TransformControls({
+  shapeKind,
+  params,
+  onTypeChange,
+  onDxChange,
+  onDyChange,
+  onAxisChange,
+  onAngleChange,
+}: Props) {
+  const availableTypes = TRANSFORM_TYPES.filter((type) => isTransformAllowedForShape(shapeKind, type, params.axis))
+  const availableAxes = AXES.filter((axis) => isTransformAllowedForShape(shapeKind, 'reflect', axis))
+
   return (
     <section className="panel">
       <h2>이동 방법</h2>
       <div className="mode-tabs">
-        {TRANSFORM_TYPES.map((type) => (
+        {availableTypes.map((type) => (
           <button
             key={type}
             type="button"
@@ -31,6 +43,7 @@ export function TransformControls({ params, onTypeChange, onDxChange, onDyChange
           </button>
         ))}
       </div>
+      {shapeKind === 'quadratic' && <p className="hint">이 도형은 평행이동과 대칭이동(y=x 제외)만 지원합니다.</p>}
 
       {params.type === 'translate' && (
         <div className="transform-params">
@@ -60,7 +73,7 @@ export function TransformControls({ params, onTypeChange, onDxChange, onDyChange
       {params.type === 'reflect' && (
         <div className="transform-params">
           <div className="mode-tabs">
-            {AXES.map((axis) => (
+            {availableAxes.map((axis) => (
               <button
                 key={axis}
                 type="button"

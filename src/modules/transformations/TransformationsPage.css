@@ -301,21 +301,167 @@
   overflow-x: auto;
 }
 
-.shape-transformed {
-  transition: opacity 150ms ease;
+/* The animated shape's position is driven by a JS setTimeout loop (useAnimationProgress)
+   that updates every 10-100ms depending on speed — deliberately no CSS transition here,
+   since one would fight each rapid position update the same way `scrollIntoView({behavior:
+   'smooth'})` fought rapid calls in the combinatorics tree diagram (see that module's
+   notes). Each step should render its new position immediately. */
+.shape-animated {
+  transition: none;
 }
 
-.shape-transformed.is-hidden {
-  opacity: 0.25;
+/* --- Equation-based shapes (line / circle / quadratic) rule comparison --- */
+
+.equation-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
 }
 
-.shape-edge,
-.shape-vertex {
+.equation-compare-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.equation-compare-label {
+  flex: 0 0 auto;
+  width: 3.4em;
+  color: var(--text-faint);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.equation-compare-value {
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: filter 150ms ease;
+}
+
+.equation-compare-value.is-hidden {
+  filter: blur(7px);
+  user-select: none;
+}
+
+.secondary-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--accent);
+  color: var(--accent-strong);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
   transition:
-    cx 550ms ease,
-    cy 550ms ease,
-    x1 550ms ease,
-    y1 550ms ease,
-    x2 550ms ease,
-    y2 550ms ease;
+    background 150ms ease,
+    transform 100ms ease;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.secondary-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.link-btn {
+  border: none;
+  background: none;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0;
+}
+
+.link-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Build-up animation controls (mirrors the combinatorics module's) --- */
+
+.animation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.animation-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-group {
+  display: flex;
+  gap: 4px;
+}
+
+.step-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: background 150ms ease;
+}
+
+.step-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.speed-group {
+  display: flex;
+  gap: 4px;
+}
+
+.speed-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.speed-btn.active {
+  background: var(--mint);
+  border-color: var(--mint);
+  color: #ffffff;
+}
+
+.progress-bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border-softer);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--mint));
+  border-radius: var(--radius-pill);
+  transition: width 120ms linear;
 }
