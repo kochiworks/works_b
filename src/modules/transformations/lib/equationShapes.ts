@@ -2,18 +2,49 @@ import { applyTransform } from './transforms'
 import type { Point, TransformParams } from './types'
 
 /**
- * How far out (in grid units) a line's two defining points are placed. Every
- * transform this app supports (translate by ≤ grid size, reflect, rotate about the
- * origin) preserves distance from the origin closely enough that two points this
- * far apart stay well outside the visible grid after transforming — so the raw
- * line segment between them can be drawn directly and the SVG viewport clips it
- * to the visible portion for free, no explicit box-clipping needed.
+ * How far out (in grid units) a rendered line's two drawn endpoints are placed.
+ * Every transform this app supports (translate by ≤ grid size, reflect, rotate
+ * about the origin) preserves distance from the origin closely enough that two
+ * points this far apart stay well outside the visible grid after transforming —
+ * so the raw line segment between them can be drawn directly and the SVG viewport
+ * clips it to the visible portion for free, no explicit box-clipping needed.
  */
 export const LINE_REACH = 30
 
+/** How far from center (in grid units) a line's two *tracked* points sit — these
+ *  are the ones the sequential animation actually moves and shows landing, so
+ *  they're kept near the visible grid (unlike LINE_REACH) so the student can see
+ *  them. This is also literally the textbook method for transforming a line: pick
+ *  two points on it, transform each one, then draw the line through the results. */
+const MARKER_REACH = 3
+
 /** The two points used to carry a line (y = slope·x + intercept) through the
- *  generic point-transform/animation engine. */
+ *  generic point-transform/animation engine — kept close to the visible grid (see
+ *  MARKER_REACH) so they're visible while the sequential animation moves them one
+ *  at a time. Use farLinePoints() to get the actual far-reaching endpoints for
+ *  *drawing* the line once both have landed. */
 export function linePoints(slope: number, intercept: number): [Point, Point] {
+  return [
+    { x: -MARKER_REACH, y: slope * -MARKER_REACH + intercept },
+    { x: MARKER_REACH, y: slope * MARKER_REACH + intercept },
+  ]
+}
+
+/** Given any two (non-coincident) points on a line, returns two points far along
+ *  that same line (see LINE_REACH) — used to draw the line edge-to-edge across the
+ *  visible grid regardless of where its two tracked points currently sit. Handles
+ *  the near-vertical case (points sharing an x) separately since slope is
+ *  undefined there. */
+export function farLinePoints(p1: Point, p2: Point): [Point, Point] {
+  const dx = p2.x - p1.x
+  if (Math.abs(dx) < 1e-6) {
+    return [
+      { x: p1.x, y: -LINE_REACH },
+      { x: p1.x, y: LINE_REACH },
+    ]
+  }
+  const slope = (p2.y - p1.y) / dx
+  const intercept = p1.y - slope * p1.x
   return [
     { x: -LINE_REACH, y: slope * -LINE_REACH + intercept },
     { x: LINE_REACH, y: slope * LINE_REACH + intercept },

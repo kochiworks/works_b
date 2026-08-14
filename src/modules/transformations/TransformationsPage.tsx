@@ -131,10 +131,16 @@ export function TransformationsPage() {
             onStepForward={animation.stepForward}
             onStepBack={animation.stepBack}
           />
-          {family === 'polygon' && points.length > 1 && (
+          {points.length > 1 && (
             <p className="hint sequential-hint">
-              ▶ 재생하면 {VERTEX_NAMES.slice(0, points.length).join(' → ')} 순서로 꼭짓점이 하나씩 이동합니다 — 같은 규칙이
-              점마다 그대로 적용되는 과정을 확인해보세요.
+              {family === 'polygon' ? (
+                <>
+                  ▶ 재생하면 {VERTEX_NAMES.slice(0, points.length).join(' → ')} 순서로 꼭짓점이 하나씩 이동합니다 — 같은
+                  규칙이 점마다 그대로 적용되는 과정을 확인해보세요.
+                </>
+              ) : (
+                '▶ 재생하면 도형을 이루는 점들이 순서대로 하나씩 이동하며 쌓여서 이동 후 도형을 완성합니다.'
+              )}
             </p>
           )}
 

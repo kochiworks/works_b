@@ -3,7 +3,7 @@ import { linePoints, quadraticPoints } from '../lib/equationShapes'
 import { SHAPE_PRESETS } from '../lib/presetShapes'
 import { applyTransform, interpolatePoint, sequentialPhase, sequentialProgress } from '../lib/transforms'
 import type { PointPhase } from '../lib/transforms'
-import { SHAPE_FAMILY, isTransformAllowedForShape } from '../lib/types'
+import { isTransformAllowedForShape } from '../lib/types'
 import type { Point, ReflectionAxis, RotationAngle, ShapeKind, TransformParams, TransformType } from '../lib/types'
 
 export const GRID_MIN = -8
@@ -100,42 +100,39 @@ export function useTransformState() {
 
   const transformedPoints = useMemo(() => points.map((p) => applyTransform(p, params)), [points, params])
 
-  // Polygon-family shapes (point/segment/triangle/quad) are made of a small set of
-  // named vertices a student can point at — for those, each vertex is carried through
-  // the transform one at a time (sequentialProgress) so the animation shows "point A
-  // moves, then point B, then point C" rather than the whole outline blending at once.
-  // Equation-family shapes (line/circle/quadratic) are a locus, not a handful of named
-  // points, so their defining points still move in lockstep as a single curve.
-  const isSequential = SHAPE_FAMILY[shapeKind] === 'polygon'
+  // Every shape kind — polygon vertices as well as an equation shape's defining
+  // points (a line's 2 anchor points, a circle's center, a parabola's sampled curve
+  // points) — is carried through the transform one point at a time: point 0 finishes
+  // its move before point 1 starts, and so on. This is what makes the animation read
+  // as "each point of the shape gets the same rule applied to it" rather than the
+  // whole outline blending/rotating as one blob — interpolating two far-apart line
+  // points simultaneously, for example, visibly looks like the line is *rotating*
+  // through a reflection instead of flipping, which sequential motion avoids since
+  // only one point is ever in flight at a time.
   const pointsAtProgress = useCallback(
-    (t: number) =>
-      points.map((p, i) => interpolatePoint(p, params, isSequential ? sequentialProgress(i, points.length, t) : t)),
-    [points, params, isSequential],
+    (t: number) => points.map((p, i) => interpolatePoint(p, params, sequentialProgress(i, points.length, t))),
+    [points, params],
   )
 
-  /** Which vertex is currently mid-move (polygon shapes only), for highlighting it in
-   *  the grid — -1 when nothing is animating sequentially (equation shapes, or once
-   *  every vertex has finished). */
+  /** Which point is currently mid-move, for highlighting it in the grid — -1 once
+   *  every point has finished (or before any point count exists). */
   const activeVertexIndex = useCallback(
     (t: number) => {
-      if (!isSequential || points.length <= 1) return -1
+      if (points.length <= 1) return -1
       if (t <= 0 || t >= 1) return -1
       const index = Math.floor(t * points.length)
       return Math.min(index, points.length - 1)
     },
-    [isSequential, points.length],
+    [points.length],
   )
 
-  /** Per-vertex pending/active/done status (polygon shapes only) — lets the grid hide
-   *  a vertex until its turn, then have it accumulate at its landed position, instead
-   *  of showing every vertex's eventual image up front. undefined for equation shapes,
-   *  where all defining points always move together and nothing needs hiding. */
+  /** Per-point pending/active/done status — lets the grid hide a point until its
+   *  turn, then have it accumulate at its landed position instead of showing every
+   *  point's eventual image up front (and, for a line, instead of drawing a
+   *  half-moved connecting line that reads as a rotation). */
   const pointPhases = useCallback(
-    (t: number): PointPhase[] | undefined => {
-      if (!isSequential) return undefined
-      return points.map((_, i) => sequentialPhase(i, points.length, t))
-    },
-    [isSequential, points],
+    (t: number): PointPhase[] => points.map((_, i) => sequentialPhase(i, points.length, t)),
+    [points],
   )
 
   return {

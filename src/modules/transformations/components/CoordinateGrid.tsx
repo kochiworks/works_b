@@ -1,4 +1,5 @@
 import { GRID_MAX, GRID_MIN } from '../hooks/useTransformState'
+import { farLinePoints } from '../lib/equationShapes'
 import { isClosedShape } from '../lib/presetShapes'
 import type { PointPhase } from '../lib/transforms'
 import { VERTEX_NAMES } from '../lib/types'
@@ -52,6 +53,17 @@ export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, acti
   const animatedScreen = animatedPoints.map(toScreen)
   const origin = toScreen({ x: 0, y: 0 })
 
+  // A line's two *tracked* points (points/animatedPoints) are kept near the visible
+  // grid so the sequential animation can show them moving — but the drawn line still
+  // needs to span edge-to-edge across the grid, so its actual endpoints are computed
+  // fresh each frame from wherever those two tracked points currently are.
+  const lineFarOriginal =
+    shapeKind === 'line' && points.length === 2 ? farLinePoints(points[0], points[1]).map(toScreen) : undefined
+  const lineFarAnimated =
+    shapeKind === 'line' && animatedPoints.length === 2
+      ? farLinePoints(animatedPoints[0], animatedPoints[1]).map(toScreen)
+      : undefined
+
   return (
     <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label="좌표평면 도형 이동">
       {/* grid */}
@@ -97,7 +109,14 @@ export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, acti
       </text>
 
       {/* original shape (fixed reference) */}
-      <ShapeOutline shapeKind={shapeKind} screenPoints={originalScreen} edges={edges} radius={radius} variant="original" />
+      <ShapeOutline
+        shapeKind={shapeKind}
+        screenPoints={originalScreen}
+        edges={edges}
+        radius={radius}
+        variant="original"
+        farScreenPoints={lineFarOriginal}
+      />
 
       {/* animated shape (moves with progress) */}
       <ShapeOutline
@@ -108,6 +127,7 @@ export function CoordinateGrid({ shapeKind, points, animatedPoints, radius, acti
         variant="animated"
         activeIndex={activeIndex}
         pointPhases={pointPhases}
+        farScreenPoints={lineFarAnimated}
       />
     </svg>
   )
@@ -121,9 +141,21 @@ interface ShapeOutlineProps {
   variant: 'original' | 'animated'
   activeIndex?: number
   pointPhases?: PointPhase[]
+  /** Line only: the far edge-to-edge endpoints to actually draw (see farLinePoints) —
+   *  screenPoints stays the two near-grid tracked points shown as markers. */
+  farScreenPoints?: { x: number; y: number }[]
 }
 
-function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeIndex = -1, pointPhases }: ShapeOutlineProps) {
+function ShapeOutline({
+  shapeKind,
+  screenPoints,
+  edges,
+  radius,
+  variant,
+  activeIndex = -1,
+  pointPhases,
+  farScreenPoints,
+}: ShapeOutlineProps) {
   const isOriginal = variant === 'original'
   const stroke = isOriginal ? '#b6b2d6' : '#ff9d87'
   const strokeStyle = isOriginal ? '5 4' : undefined
@@ -135,9 +167,41 @@ function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeI
   const lineClass = isOriginal ? undefined : 'shape-edge'
   const vertexClass = isOriginal ? undefined : 'shape-vertex'
 
+  // `phaseOf` defaults to 'done' (fully shown) for the original reference shape and
+  // for callers that don't pass phases — that reproduces "always show everything".
+  const phaseOf = (i: number): PointPhase => (isOriginal ? 'done' : (pointPhases?.[i] ?? 'done'))
+
+  /** A small unlabeled dot for one of a shape's defining points (used where the point
+   *  itself isn't a named vertex, e.g. a line's two anchor points) — hidden while
+   *  'pending', pulses while 'active', pops in the moment it lands. */
+  function pointMarker(p: { x: number; y: number }, phase: PointPhase, key: string) {
+    if (phase === 'pending') return null
+    const isActive = !isOriginal && phase === 'active'
+    const justLanded = !isOriginal && phase === 'done' && !!pointPhases
+    return (
+      <g key={`${key}-${phase}`}>
+        {isActive && (
+          <circle className="shape-vertex-pulse" cx={p.x} cy={p.y} r={8} fill="none" stroke="#ff9d87" strokeWidth={2} />
+        )}
+        <circle
+          className={justLanded ? `${vertexClass} shape-vertex-landed` : vertexClass}
+          cx={p.x}
+          cy={p.y}
+          r={isOriginal ? 4 : isActive ? 5.5 : 4.5}
+          fill={vertexFill}
+          stroke={isActive ? '#c1543f' : vertexStroke}
+          strokeWidth={isActive ? 2.5 : 1.5}
+        />
+      </g>
+    )
+  }
+
   if (shapeKind === 'circle') {
     const [center] = screenPoints
     if (!center) return null
+    // A circle is carried by a single point (its center) — hide it entirely until
+    // that point's (only) turn begins, same "not arrived yet" rule as everywhere else.
+    if (phaseOf(0) === 'pending') return null
     return (
       <g className={groupClass}>
         <circle
@@ -157,37 +221,58 @@ function ShapeOutline({ shapeKind, screenPoints, edges, radius, variant, activeI
 
   if (shapeKind === 'line') {
     const [p1, p2] = screenPoints
+    const [far1, far2] = farScreenPoints ?? []
     if (!p1 || !p2) return null
+    const phase1 = phaseOf(0)
+    const phase2 = phaseOf(1)
+    // Drawing the connecting line while only one of its two points has moved is
+    // exactly what made a reflection look like it was rotating — the still-original
+    // point and the already-mirrored point, joined by a straight edge, sweep through
+    // a diagonal that never actually appears in either the before or after line. So
+    // the line itself only appears once BOTH anchor points have landed; until then,
+    // only the point currently in flight is shown. It's then drawn edge-to-edge
+    // through farScreenPoints rather than directly between p1/p2, which sit close
+    // together near the grid center once landed.
     return (
       <g className={groupClass}>
-        <line
-          className={lineClass}
-          x1={p1.x}
-          y1={p1.y}
-          x2={p2.x}
-          y2={p2.y}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-          strokeDasharray={strokeStyle}
-        />
+        {phase1 === 'done' && phase2 === 'done' && far1 && far2 && (
+          <line
+            className={lineClass}
+            x1={far1.x}
+            y1={far1.y}
+            x2={far2.x}
+            y2={far2.y}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeDasharray={strokeStyle}
+          />
+        )}
+        {pointMarker(p1, phase1, 'line-p1')}
+        {pointMarker(p2, phase2, 'line-p2')}
       </g>
     )
   }
 
   if (shapeKind === 'quadratic') {
-    const d = screenPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    // Same accumulate idea, applied to the curve's sample points: only the prefix of
+    // points that have already had their turn (pending ones are still hidden) gets
+    // drawn, so the parabola visibly traces itself out left-to-right as it moves
+    // instead of the whole curve blending into its image at once.
+    const visible = screenPoints.filter((_, i) => phaseOf(i) !== 'pending')
+    if (visible.length < 2) {
+      return <g className={groupClass}>{visible[0] && pointMarker(visible[0], phaseOf(0), 'quad-lead')}</g>
+    }
+    const d = visible.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+    const activePoint = activeIndex >= 0 ? screenPoints[activeIndex] : undefined
     return (
       <g className={groupClass}>
         <path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeStyle} />
+        {!isOriginal && activePoint && (
+          <circle className="shape-vertex-pulse" cx={activePoint.x} cy={activePoint.y} r={7} fill="none" stroke="#ff9d87" strokeWidth={2} />
+        )}
       </g>
     )
   }
-
-  // point / segment / triangle / quad. `phaseOf` defaults to 'done' (fully shown) —
-  // for the original reference shape (isOriginal) and for shapes without a phases
-  // array (nothing sequential going on), that reproduces the old "always show
-  // everything" behavior.
-  const phaseOf = (i: number): PointPhase => (isOriginal ? 'done' : (pointPhases?.[i] ?? 'done'))
 
   return (
     <g className={groupClass}>
