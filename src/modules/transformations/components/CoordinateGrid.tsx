@@ -256,25 +256,24 @@ function ShapeOutline({
   if (shapeKind === 'quadratic') {
     // Same accumulate idea, applied to the curve's sample points: only points that
     // have fully landed ('done') are connected into the drawn path. The currently
-    // 'active' sample is still mid-flight — its current position can sit far from
-    // where its already-landed neighbor ended up (e.g. reflecting across the y-axis
-    // sends the curve's two halves to opposite sides), so stitching it into the same
-    // path drew a stray line to what looked like an unrelated point. It's shown as
-    // its own separate pulsing marker instead, not connected to the growing curve.
+    // 'active' sample is still mid-flight, moving in a straight line from its
+    // original spot toward its landing spot (see interpolatePoint's translate/reflect
+    // cases) — a single point cutting straight across, unlike its already-landed
+    // neighbors which sit exactly on the smooth target curve. Marking that point
+    // looked like a stray, unrelated dot floating off the curve rather than "the pen
+    // tip drawing it", so it isn't shown at all; the growing done-only path is
+    // already enough to read as the curve sweeping into place.
     const done = screenPoints.filter((_, i) => phaseOf(i) === 'done')
-    const activePoint = !isOriginal && activeIndex >= 0 ? screenPoints[activeIndex] : undefined
+    if (done.length < 2) return null
     return (
       <g className={groupClass}>
-        {done.length >= 2 && (
-          <path
-            d={done.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')}
-            fill="none"
-            stroke={stroke}
-            strokeWidth={strokeWidth}
-            strokeDasharray={strokeStyle}
-          />
-        )}
-        {activePoint && pointMarker(activePoint, 'active', 'quad-lead')}
+        <path
+          d={done.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeStyle}
+        />
       </g>
     )
   }
