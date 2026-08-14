@@ -36,15 +36,8 @@ export function ProbabilityPage() {
   } = useProbabilityState()
 
   const [trialCount, setTrialCount] = useState(TRIAL_COUNT_DEFAULT)
-  const [answerHidden, setAnswerHidden] = useState(true)
   const { trials, reroll } = useSimulationRun(sampleSpace, trialCount)
   const animation = useTrialAnimation(trials.length)
-
-  // A revealed answer, and a half-finished simulation, shouldn't carry over to a new
-  // setup — whether that's a preset click or a manual tweak to the experiment/event.
-  useEffect(() => {
-    setAnswerHidden(true)
-  }, [kind, coinCount, diceCount, ballGroups, eventId])
 
   // The trial batch itself (a fresh useSimulationRun draw, whether from a settings
   // change or an explicit reroll) always starts the build-up animation over.
@@ -93,20 +86,10 @@ export function ProbabilityPage() {
         </div>
 
         <div className="result-column">
-          <ProbabilityFormula
-            eventLabel={selectedEvent?.label ?? '—'}
-            probability={probability}
-            hidden={answerHidden}
-            onToggleHidden={() => setAnswerHidden((prev) => !prev)}
-          />
+          <ProbabilityFormula eventLabel={selectedEvent?.label ?? '—'} probability={probability} />
 
           {selectedEvent && (
-            <ResultSummary
-              revealed={animation.revealed}
-              hits={hits}
-              theoreticalProbability={probability?.decimal ?? 0}
-              hidden={answerHidden}
-            />
+            <ResultSummary revealed={animation.revealed} hits={hits} theoreticalProbability={probability?.decimal ?? 0} />
           )}
 
           <section className="panel">

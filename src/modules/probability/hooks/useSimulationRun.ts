@@ -3,7 +3,7 @@ import { runTrials } from '../lib/probability'
 import type { Outcome } from '../lib/types'
 
 export const TRIAL_COUNT_MIN = 10
-export const TRIAL_COUNT_MAX = 300
+export const TRIAL_COUNT_MAX = 1000
 export const TRIAL_COUNT_STEP = 10
 export const TRIAL_COUNT_DEFAULT = 60
 

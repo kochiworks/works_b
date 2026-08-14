@@ -163,32 +163,6 @@
   font-weight: 800;
   color: var(--text);
   font-variant-numeric: tabular-nums;
-  transition: filter 150ms ease;
-}
-
-.formula-value.is-hidden {
-  filter: blur(9px);
-  user-select: none;
-}
-
-.formula-card .quiz-toggle {
-  align-self: flex-end;
-}
-
-.quiz-toggle {
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-soft);
-  background: var(--lemon-soft);
-  color: #8a6a12;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 700;
-  transition: transform 100ms ease;
-}
-
-.quiz-toggle:active {
-  transform: scale(0.96);
 }
 
 /* --- Steppers (coin/dice/ball counts) --- */
@@ -327,11 +301,6 @@
   flex-wrap: wrap;
   gap: 20px;
   align-items: center;
-}
-
-.totals-row.is-hidden .total-number {
-  filter: blur(9px);
-  user-select: none;
 }
 
 .total-figure {

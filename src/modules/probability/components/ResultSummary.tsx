@@ -2,16 +2,15 @@ interface Props {
   revealed: number
   hits: number
   theoreticalProbability: number
-  hidden: boolean
 }
 
-export function ResultSummary({ revealed, hits, theoreticalProbability, hidden }: Props) {
+export function ResultSummary({ revealed, hits, theoreticalProbability }: Props) {
   const relativeFrequency = revealed > 0 ? hits / revealed : null
   const diff = relativeFrequency !== null ? Math.abs(relativeFrequency - theoreticalProbability) : null
 
   return (
     <section className="panel result-summary">
-      <div className={hidden ? 'totals-row is-hidden' : 'totals-row'}>
+      <div className="totals-row">
         <div className="total-figure">
           <span className="total-label">지금까지 시행</span>
           <span className="total-number">{revealed.toLocaleString('ko-KR')}번</span>
