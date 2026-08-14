@@ -192,6 +192,26 @@
   accent-color: var(--accent);
 }
 
+/* --- Standard form reference (under the coefficient sliders) --- */
+
+.standard-form {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-soft);
+  background: var(--surface-soft);
+}
+
+.standard-form-label {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
 /* --- Equation display --- */
 
 .formula-card {

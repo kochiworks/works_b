@@ -78,6 +78,11 @@ export interface FunctionKindConfig {
   /** The equation in textbook notation, as LaTeX source for KaTeX — e.g.
    *  "y = 2(x - 1)^2 + 3". */
   equationText: (values: CoefficientValues) => string
+  /** The general/standard form of this kind's equation, written with the literal
+   *  coefficient letters (a, b, p, q) instead of their current values — e.g.
+   *  "y = a(x - p)^2 + q". Shown once, statically, next to the sliders so a
+   *  student can see where each slider's letter actually sits in the formula. */
+  standardFormTex: string
   /** Domain/range/asymptote notes for the current coefficients — the "무엇을
    *  관찰해야 하는지" hint that ties the slider back to the textbook definition. */
   featuresText: (values: CoefficientValues) => string

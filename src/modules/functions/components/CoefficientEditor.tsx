@@ -1,3 +1,4 @@
+import { Katex } from './Katex'
 import type { CoefficientValues, FunctionKindConfig } from '../lib/types'
 
 interface Props {
@@ -39,6 +40,13 @@ export function CoefficientEditor({ config, values, onChange, onReset }: Props) 
             </label>
           )
         })}
+      </div>
+      {/* The general form, written with the bare letters a/b/p/q — always the same
+          regardless of slider position, so a student can look up which letter above
+          sits where in the formula. */}
+      <div className="standard-form">
+        <span className="standard-form-label">표준형</span>
+        <Katex tex={config.standardFormTex} />
       </div>
     </section>
   )
