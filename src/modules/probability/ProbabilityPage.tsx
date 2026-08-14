@@ -4,6 +4,7 @@ import { EventSelector } from './components/EventSelector'
 import { ExperimentSelector } from './components/ExperimentSelector'
 import { ExperimentSettings } from './components/ExperimentSettings'
 import { FrequencyChart } from './components/FrequencyChart'
+import { NormalApproxChart } from './components/NormalApproxChart'
 import { PresetScenarios } from './components/PresetScenarios'
 import { ProbabilityFormula } from './components/ProbabilityFormula'
 import { ResultSummary } from './components/ResultSummary'
@@ -127,6 +128,22 @@ export function ProbabilityPage() {
                 revealed={animation.revealed}
                 total={trials.length}
                 theoreticalProbability={probability.decimal}
+              />
+            </section>
+          )}
+
+          {selectedEvent && probability && (
+            <section className="panel">
+              <h2>이항분포의 정규분포 근사</h2>
+              <p className="hint">
+                시행 {trialCount.toLocaleString('ko-KR')}번 중 사건 A가 발생하는 횟수는 이항분포를 따릅니다(보라색
+                막대). 시행 횟수를 늘릴수록 이 막대들이 코랄색 정규분포 곡선에 점점 가까워지는 모습을 확인해보세요 —
+                중심극한정리에 의한 근사입니다.
+              </p>
+              <NormalApproxChart
+                n={trialCount}
+                p={probability.decimal}
+                observedHits={animation.revealed >= trialCount ? hits : null}
               />
             </section>
           )}

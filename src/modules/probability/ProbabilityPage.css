@@ -68,6 +68,15 @@
   margin: 0;
 }
 
+/* A bare <input type="range"> defaults to a small fixed intrinsic width in every
+   browser, not 100% of its container — without this it sits at ~130px regardless of
+   how wide the panel around it is. */
+.trial-count-slider {
+  display: block;
+  width: 100%;
+  accent-color: var(--accent);
+}
+
 .hint {
   margin: 6px 0 0;
   font-size: 0.85rem;

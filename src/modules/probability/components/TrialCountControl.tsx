@@ -17,6 +17,7 @@ export function TrialCountControl({ trialCount, onChange, onReroll }: Props) {
       </div>
       <input
         type="range"
+        className="trial-count-slider"
         min={TRIAL_COUNT_MIN}
         max={TRIAL_COUNT_MAX}
         step={TRIAL_COUNT_STEP}
