@@ -254,22 +254,27 @@ function ShapeOutline({
   }
 
   if (shapeKind === 'quadratic') {
-    // Same accumulate idea, applied to the curve's sample points: only the prefix of
-    // points that have already had their turn (pending ones are still hidden) gets
-    // drawn, so the parabola visibly traces itself out left-to-right as it moves
-    // instead of the whole curve blending into its image at once.
-    const visible = screenPoints.filter((_, i) => phaseOf(i) !== 'pending')
-    if (visible.length < 2) {
-      return <g className={groupClass}>{visible[0] && pointMarker(visible[0], phaseOf(0), 'quad-lead')}</g>
-    }
-    const d = visible.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-    const activePoint = activeIndex >= 0 ? screenPoints[activeIndex] : undefined
+    // Same accumulate idea, applied to the curve's sample points: only points that
+    // have fully landed ('done') are connected into the drawn path. The currently
+    // 'active' sample is still mid-flight — its current position can sit far from
+    // where its already-landed neighbor ended up (e.g. reflecting across the y-axis
+    // sends the curve's two halves to opposite sides), so stitching it into the same
+    // path drew a stray line to what looked like an unrelated point. It's shown as
+    // its own separate pulsing marker instead, not connected to the growing curve.
+    const done = screenPoints.filter((_, i) => phaseOf(i) === 'done')
+    const activePoint = !isOriginal && activeIndex >= 0 ? screenPoints[activeIndex] : undefined
     return (
       <g className={groupClass}>
-        <path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={strokeStyle} />
-        {!isOriginal && activePoint && (
-          <circle className="shape-vertex-pulse" cx={activePoint.x} cy={activePoint.y} r={7} fill="none" stroke="#ff9d87" strokeWidth={2} />
+        {done.length >= 2 && (
+          <path
+            d={done.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+            strokeDasharray={strokeStyle}
+          />
         )}
+        {activePoint && pointMarker(activePoint, 'active', 'quad-lead')}
       </g>
     )
   }
