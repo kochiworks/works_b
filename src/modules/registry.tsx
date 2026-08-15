@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import { CombinatoricsPage } from './combinatorics/CombinatoricsPage'
 import { FunctionsPage } from './functions/FunctionsPage'
+import { NumberSensePage } from './numberSense/NumberSensePage'
 import { ProbabilityPage } from './probability/ProbabilityPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
 
@@ -25,6 +26,16 @@ export interface ModuleMeta {
  * shared header all pick it up automatically.
  */
 export const MODULES: ModuleMeta[] = [
+  {
+    id: 'number-sense',
+    title: '수 감각 익히기',
+    subtitle: '10알 교구로 만나는 사칙연산',
+    description: '원목 수셈판(10알 교구)으로 알을 직접 놓아 보며 덧셈 · 뺄셈 · 곱셈 · 나눗셈의 원리를 눈으로 확인합니다.',
+    icon: '🧮',
+    accent: 'lemon',
+    status: 'available',
+    Component: NumberSensePage,
+  },
   {
     id: 'combinatorics',
     title: '경우의 수 탐색기',
