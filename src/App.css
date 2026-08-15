@@ -179,6 +179,10 @@
   background: var(--lemon-soft);
 }
 
+.accent-rose .module-card-icon {
+  background: var(--rose-soft);
+}
+
 .module-card-title {
   margin: 0;
   font-size: 1.15rem;

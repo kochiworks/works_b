@@ -2,10 +2,11 @@ import type { ComponentType } from 'react'
 import { CombinatoricsPage } from './combinatorics/CombinatoricsPage'
 import { FunctionsPage } from './functions/FunctionsPage'
 import { NumberSensePage } from './numberSense/NumberSensePage'
+import { PlaceValuePage } from './placeValue/PlaceValuePage'
 import { ProbabilityPage } from './probability/ProbabilityPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
 
-export type ModuleAccent = 'violet' | 'mint' | 'peach' | 'sky' | 'lemon'
+export type ModuleAccent = 'violet' | 'mint' | 'peach' | 'sky' | 'lemon' | 'rose'
 
 export interface ModuleMeta {
   /** Used as the hash route: #/<id> */
@@ -35,6 +36,16 @@ export const MODULES: ModuleMeta[] = [
     accent: 'lemon',
     status: 'available',
     Component: NumberSensePage,
+  },
+  {
+    id: 'place-value',
+    title: '가로셈 · 세로셈 탐구기',
+    subtitle: '자릿값 구슬 묶음으로 보는 계산 원리',
+    description: '수를 백 · 십 · 일 구슬 묶음으로 나타내고, 받아올림 · 받아내림이 일어나는 순간을 가로셈과 세로셈으로 함께 확인합니다.',
+    icon: '🔢',
+    accent: 'rose',
+    status: 'available',
+    Component: PlaceValuePage,
   },
   {
     id: 'combinatorics',
