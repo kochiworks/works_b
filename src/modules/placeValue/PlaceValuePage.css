@@ -190,10 +190,25 @@
   color: var(--text-muted);
 }
 
-.coefficient-slider {
-  display: block;
+/* Numbers here range up to 999, where a drag-slider makes landing on an
+   exact value fiddly — a keyboard-editable field fits better than the
+   sliders every other module uses for their much smaller ranges. */
+.operand-number-input {
   width: 100%;
-  accent-color: var(--accent);
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 150ms ease;
+}
+
+.operand-number-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 /* --- Equation display --- */
