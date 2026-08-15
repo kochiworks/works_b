@@ -1,11 +1,11 @@
 import { AnimationControls } from './components/AnimationControls'
 import { EquationDisplay } from './components/EquationDisplay'
-import { HorizontalAlgorithm } from './components/HorizontalAlgorithm'
 import { LongDivision } from './components/LongDivision'
 import { OperandEditor } from './components/OperandEditor'
 import { OperationSelector } from './components/OperationSelector'
 import { PlaceValueBlocks } from './components/PlaceValueBlocks'
 import { PresetScenarios } from './components/PresetScenarios'
+import { StepList } from './components/StepList'
 import { VerticalColumns } from './components/VerticalColumns'
 import { useStageAnimation } from './hooks/useStageAnimation'
 import { usePlaceValueState } from './hooks/usePlaceValueState'
@@ -54,33 +54,32 @@ export function PlaceValuePage() {
             />
           </section>
 
-          <section className="panel algorithms-grid">
-            <div className="algorithm-block">
-              <h2>세로셈</h2>
-              {stage.variant === 'columns' ? (
-                <VerticalColumns
-                  columns={stage.columns}
-                  operatorSymbol={OPERATOR_SYMBOLS[kind] ?? ''}
-                  aValue={values.a}
-                  bValue={values.b}
-                  resultValue={outcome.value}
-                  bIsSingleDigit={kind === 'multiplication'}
-                />
-              ) : (
-                <LongDivision
-                  dividend={values.a}
-                  divisor={values.b}
-                  quotientDigits={stage.quotientDigits}
-                  quotientValue={outcome.value}
-                  remainder={stage.remainder}
-                  showRemainder={anim.index >= anim.total}
-                />
-              )}
-            </div>
-            <div className="algorithm-block">
-              <h2>가로셈</h2>
-              <HorizontalAlgorithm lines={stage.horizontalLines} />
-            </div>
+          <section className="panel">
+            <h2>세로셈</h2>
+            {stage.variant === 'columns' ? (
+              <VerticalColumns
+                columns={stage.columns}
+                operatorSymbol={OPERATOR_SYMBOLS[kind] ?? ''}
+                aValue={values.a}
+                bValue={values.b}
+                resultValue={outcome.value}
+                bIsSingleDigit={kind === 'multiplication'}
+              />
+            ) : (
+              <LongDivision
+                dividend={values.a}
+                divisor={values.b}
+                quotientDigits={stage.quotientDigits}
+                quotientValue={outcome.value}
+                remainder={stage.remainder}
+                showRemainder={anim.index >= anim.total}
+              />
+            )}
+          </section>
+
+          <section className="panel step-list-panel">
+            <h2>가로셈 — 자리별로 한 단계씩</h2>
+            <StepList kind={kind} values={values} stages={outcome.stages} uptoIndex={anim.index} />
           </section>
 
           <p className="hint stage-caption">{stage.caption}</p>

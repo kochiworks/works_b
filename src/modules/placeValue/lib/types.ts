@@ -67,11 +67,15 @@ interface StageBase {
   blocksA: PlaceDigits
   blocksB: PlaceDigits
   blocksResult: PlaceDigits
-  /** 가로셈 lines revealed so far, oldest first — rendered as a growing list
-   *  rather than one single-line expression. */
+  /** 가로셈 lines revealed so far, oldest first — the newest entry is always
+   *  this exact stage's own explanation, which is what the step-by-step
+   *  reveal (StepList) pairs with this stage's bead visual. */
    horizontalLines: string[]
   /** Plain-language narration of what this stage is doing. */
   caption: string
+  /** Which 자리 this stage just finished computing — undefined only for the
+   *  very first "설정" stage, before any place has been processed. */
+  place?: PlaceKey
 }
 
 export interface ColumnStage extends StageBase {
@@ -82,6 +86,8 @@ export interface ColumnStage extends StageBase {
 export interface DivisionBringDown {
   place: PlaceKey
   digit: number
+  /** The remainder carried in from the place before — 0 at 백의 자리. */
+  priorRemainder: number
   brought: number
   quotientDigit: number
   remainder: number

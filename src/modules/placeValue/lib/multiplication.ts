@@ -48,6 +48,7 @@ export function computeMultiplication(a: number, m: number): OperationOutcome {
   )
   stages.push({
     variant: 'columns',
+    place: 'ones',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: M,
@@ -70,6 +71,7 @@ export function computeMultiplication(a: number, m: number): OperationOutcome {
   )
   stages.push({
     variant: 'columns',
+    place: 'tens',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: M,
@@ -87,9 +89,9 @@ export function computeMultiplication(a: number, m: number): OperationOutcome {
   const hundredsCarryTerm = carryToHundreds ? ` + ${carryToHundreds}(받아올림)` : ''
   lines.push(`백의 자리: ${A.hundreds} × ${m}${hundredsCarryTerm} = ${result.hundreds}`)
   const value = result.hundreds * 100 + result.tens * 10 + result.ones
-  lines.push(`${a} × ${m} = ${value}`)
   stages.push({
     variant: 'columns',
+    place: 'hundreds',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: M,

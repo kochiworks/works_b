@@ -54,6 +54,7 @@ export function computeSubtraction(a: number, b: number): OperationOutcome {
   )
   stages.push({
     variant: 'columns',
+    place: 'ones',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,
@@ -91,6 +92,7 @@ export function computeSubtraction(a: number, b: number): OperationOutcome {
   lines.push(tensLine)
   stages.push({
     variant: 'columns',
+    place: 'tens',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,
@@ -108,9 +110,9 @@ export function computeSubtraction(a: number, b: number): OperationOutcome {
   const hundredsStart = borrowToTens ? `${A.hundreds} - 1(빌려줌)` : `${A.hundreds}`
   lines.push(`백의 자리: ${hundredsStart} = ${effHundreds} → ${effHundreds} - ${B.hundreds} = ${result.hundreds}`)
   const value = result.hundreds * 100 + result.tens * 10 + result.ones
-  lines.push(`${a} - ${b} = ${value}`)
   stages.push({
     variant: 'columns',
+    place: 'hundreds',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,

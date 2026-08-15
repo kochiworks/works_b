@@ -47,6 +47,7 @@ export function computeAddition(a: number, b: number): OperationOutcome {
   )
   stages.push({
     variant: 'columns',
+    place: 'ones',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,
@@ -71,6 +72,7 @@ export function computeAddition(a: number, b: number): OperationOutcome {
   )
   stages.push({
     variant: 'columns',
+    place: 'tens',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,
@@ -89,9 +91,9 @@ export function computeAddition(a: number, b: number): OperationOutcome {
     `백의 자리: ${A.hundreds} + ${B.hundreds}${carryToHundreds ? ' + 1(받아올림)' : ''} = ${result.hundreds}`,
   )
   const value = result.hundreds * 100 + result.tens * 10 + result.ones
-  lines.push(`${a} + ${b} = ${value}`)
   stages.push({
     variant: 'columns',
+    place: 'hundreds',
     columns: structuredClone(columns),
     blocksA: A,
     blocksB: B,

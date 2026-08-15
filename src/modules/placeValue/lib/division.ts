@@ -32,33 +32,43 @@ export function computeDivision(dividend: number, divisor: number): OperationOut
   const lines: string[] = []
   const resultSoFar: PlaceDigits = { ...EMPTY_DIGITS }
 
-  for (const place of PLACE_ORDER) {
+  for (let i = 0; i < PLACE_ORDER.length; i++) {
+    const place = PLACE_ORDER[i]
+    const isLastPlace = i === PLACE_ORDER.length - 1
+    const priorRemainder = remainder
     const digit = D[place]
-    const brought = remainder * 10 + digit
+    const brought = priorRemainder * 10 + digit
     const quotientDigit = Math.floor(brought / divisor)
     const newRemainder = brought % divisor
     quotientDigits[place] = quotientDigit
     resultSoFar[place] = quotientDigit
-    bringDowns.push({ place, digit, brought, quotientDigit, remainder: newRemainder })
+    bringDowns.push({ place, digit, priorRemainder, brought, quotientDigit, remainder: newRemainder })
 
     lines.push(
-      remainder > 0
-        ? `${PLACE_LABELS[place]}: 나머지 ${remainder}에 ${digit}를 내려써서 ${brought} → ${brought} ÷ ${divisor} = ${quotientDigit} ... ${newRemainder}`
+      priorRemainder > 0
+        ? `${PLACE_LABELS[place]}: 나머지 ${priorRemainder}에 ${digit}를 내려써서 ${brought} → ${brought} ÷ ${divisor} = ${quotientDigit} ... ${newRemainder}`
         : `${PLACE_LABELS[place]}: ${digit} ÷ ${divisor} = ${quotientDigit} ... ${newRemainder}`,
     )
 
     let caption: string
-    if (quotientDigit === 0 && remainder === 0) {
+    if (quotientDigit === 0 && priorRemainder === 0) {
       caption = `${PLACE_LABELS[place]} 숫자 ${digit}는 ${divisor}보다 작아서 몫은 0이고, 다음 자리로 그대로 내려가요.`
-    } else if (remainder > 0) {
-      caption = `앞에서 남은 ${remainder}를 이 자리로 내려와 ${digit}와 합쳐 ${brought}를 만들고 ${divisor}묶음씩 ${quotientDigit}번 나누었어요.`
+    } else if (priorRemainder > 0) {
+      caption = `앞에서 남은 ${priorRemainder}를 이 자리로 내려와 ${digit}와 합쳐 ${brought}를 만들고 ${divisor}묶음씩 ${quotientDigit}번 나누었어요.`
     } else {
       caption = `${digit}를 ${divisor}묶음씩 ${quotientDigit}번 나누었어요.`
     }
 
     remainder = newRemainder
+
+    if (isLastPlace) {
+      const value = resultSoFar.hundreds * 100 + resultSoFar.tens * 10 + resultSoFar.ones
+      caption = remainder > 0 ? `계산 완료! ${dividend} ÷ ${divisor} = ${value} 나머지 ${remainder}` : `계산 완료! ${dividend} ÷ ${divisor} = ${value}`
+    }
+
     stages.push({
       variant: 'longDivision',
+      place,
       quotientDigits: { ...quotientDigits },
       bringDowns: [...bringDowns],
       remainder,
@@ -71,21 +81,5 @@ export function computeDivision(dividend: number, divisor: number): OperationOut
   }
 
   const value = resultSoFar.hundreds * 100 + resultSoFar.tens * 10 + resultSoFar.ones
-  lines.push(remainder > 0 ? `${dividend} ÷ ${divisor} = ${value} ⋯ ${remainder}` : `${dividend} ÷ ${divisor} = ${value}`)
-  stages.push({
-    variant: 'longDivision',
-    quotientDigits: { ...quotientDigits },
-    bringDowns: [...bringDowns],
-    remainder,
-    blocksA: D,
-    blocksB: DIV,
-    blocksResult: { ...resultSoFar },
-    horizontalLines: [...lines],
-    caption:
-      remainder > 0
-        ? `계산 완료! ${dividend} ÷ ${divisor} = ${value} 나머지 ${remainder}`
-        : `계산 완료! ${dividend} ÷ ${divisor} = ${value}`,
-  })
-
   return { value, remainder, stages }
 }

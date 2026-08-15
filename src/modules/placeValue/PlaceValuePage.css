@@ -354,24 +354,7 @@
   max-width: 80px;
 }
 
-/* --- Vertical / horizontal algorithm panels --- */
-
-.algorithms-grid {
-  display: grid;
-  grid-template-columns: minmax(180px, 280px) 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (max-width: 640px) {
-  .algorithms-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.algorithm-block h2 {
-  font-size: 0.92rem;
-}
+/* --- Vertical algorithm panel --- */
 
 /* 세로셈 columns */
 
@@ -517,30 +500,133 @@
   color: var(--lemon);
 }
 
-/* 가로셈 lines */
+/* --- 가로셈 step list: one row per 자리, bead sequence + explanation together --- */
 
-.horizontal-lines {
-  margin: 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.horizontal-line {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-.horizontal-line.is-latest {
-  color: var(--text);
-  font-weight: 700;
+.step-list-panel {
+  overflow-x: auto;
 }
 
 .horizontal-empty {
   font-size: 0.85rem;
   color: var(--text-faint);
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 560px;
+}
+
+.step-row {
+  display: grid;
+  grid-template-columns: 68px auto 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  border: 1px solid var(--border-softer);
+  animation: step-row-in 220ms ease;
+}
+
+.step-row.is-latest {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+@keyframes step-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-row-place {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.step-row-text {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.step-beads {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.step-dot-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  max-width: 90px;
+}
+
+.step-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.step-dot--hundreds {
+  background: #1e3a5f;
+}
+
+.step-dot--tens {
+  background: #d9770d;
+}
+
+.step-dot--ones {
+  background: var(--sky);
+}
+
+.step-dot-zero {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.step-symbol {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.step-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.step-badge--carry {
+  background: var(--mint-soft);
+  color: #1a8f6d;
+}
+
+.step-badge--borrow {
+  background: var(--peach-soft);
+  color: #c2542f;
+}
+
+.step-badge--remainder {
+  background: var(--lemon-soft);
+  color: #a1740f;
 }
 
 .stage-caption {
