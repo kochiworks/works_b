@@ -321,9 +321,15 @@
   gap: 3px;
 }
 
+/* Boxed the same way as .hundred-flat so a "묶음" of ten reads as one bundle
+   at a glance, not just ten loose dots sitting in a row. */
 .ten-strip {
   display: flex;
   gap: 2px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border-soft);
 }
 
 .one-dots {
