@@ -1,0 +1,351 @@
+.trig-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+/* Shared shell classes — several modules each define their own copy (see
+   README "모듈은 서로 코드를 공유하지 않습니다"); the values match. */
+.trig-page .page-intro {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.trig-page .page-intro h1 {
+  margin: 0 0 6px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.trig-page .subtitle {
+  margin: 0 auto;
+  max-width: 720px;
+  color: var(--text-muted);
+}
+
+.trig-page .explorer-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .trig-page .explorer-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trig-page .settings-column,
+.trig-page .result-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* a wide SVG child must not stretch this grid track past 1fr */
+  min-width: 0;
+}
+
+.trig-page .panel {
+  background: var(--surface);
+  border: 1px solid var(--border-softer);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.trig-page .panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* --- Segmented controls (angle / ratio) --- */
+
+.trig-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trig-tab {
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.trig-tab:hover:not(.active) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.trig-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+.trig-hint {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-faint);
+}
+
+/* --- Ratio definition list (under the ratio tabs) --- */
+
+.trig-ratio-defs {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trig-ratio-defs li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.trig-ratio-defs li.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.trig-ratio-defs__name {
+  min-width: 52px;
+}
+
+.trig-ratio-defs__frac,
+.trig-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.trig-ratio-defs__bar,
+.trig-frac__bar {
+  width: 100%;
+  min-width: 40px;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.4;
+  margin: 2px 0;
+}
+
+/* Side-name colours, shared by the readout, the definition list and (as stroke)
+   the triangle. opp = 대변, adj = 밑변, hyp = 빗변. */
+.trig-side-word--opp {
+  color: #f2794f;
+}
+
+.trig-side-word--adj {
+  color: #2f95d8;
+}
+
+.trig-side-word--hyp {
+  color: #7c5cf0;
+}
+
+/* --- Ratio readout --- */
+
+.trig-readout__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05rem;
+}
+
+.trig-readout__name {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.trig-readout__eq {
+  color: var(--text-faint);
+  font-weight: 700;
+}
+
+.trig-readout__value {
+  font-size: 1.3rem;
+  color: var(--accent-strong);
+}
+
+.trig-readout__approx {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* --- Figure panel --- */
+
+.trig-figure-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 100%;
+}
+
+.trig-legend {
+  align-self: flex-start;
+  display: flex;
+  gap: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot--opp {
+  background: #f2794f;
+}
+
+.legend-dot--adj {
+  background: #2f95d8;
+}
+
+.legend-dot--hyp {
+  background: #7c5cf0;
+}
+
+.trig-figure-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.trig-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.trig-svg__vertex {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #2c2a3d;
+}
+
+.trig-svg__angle {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #2c2a3d;
+}
+
+.trig-svg__len {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.trig-svg__len--on {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.trig-svg__dash-len {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #9b93c8;
+}
+
+.trig-svg__figure-name {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #b6ade4;
+  letter-spacing: 0.02em;
+}
+
+.trig-reason {
+  margin: 0;
+  align-self: stretch;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-soft);
+  background: var(--surface-soft);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* --- Special-angle table --- */
+
+.trig-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.trig-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.trig-table th,
+.trig-table td {
+  padding: 10px 14px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+}
+
+.trig-table thead th {
+  font-weight: 800;
+  color: var(--text-muted);
+  background: var(--surface-soft);
+}
+
+.trig-table tbody th {
+  font-weight: 800;
+  color: var(--text-muted);
+  background: var(--surface-soft);
+}
+
+.trig-table .col-on {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.trig-table .row-on th[scope='row'] {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+.trig-table .cell-on {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  color: var(--accent-strong);
+}

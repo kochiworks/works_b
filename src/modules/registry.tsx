@@ -5,6 +5,7 @@ import { NumberSensePage } from './numberSense/NumberSensePage'
 import { PlaceValuePage } from './placeValue/PlaceValuePage'
 import { ProbabilityPage } from './probability/ProbabilityPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
+import { TrigRatioPage } from './trigRatio/TrigRatioPage'
 
 /**
  * Pastel highlight assigned to every card. Each name has matching
@@ -96,6 +97,18 @@ export const ACTIVITIES: ActivityMeta[] = [
     domain: 'shape-and-measurement',
     status: 'available',
     Component: TransformationsPage,
+  },
+  {
+    id: 'trig-ratio',
+    title: '삼각비 탐구기',
+    subtitle: '특수각으로 보는 sin · cos · tan',
+    description:
+      '직각삼각형의 예각을 30° · 45° · 60°로 바꿔 가며, 삼각비의 값이 왜 그렇게 나오는지 삼각형의 변에서 바로 확인합니다.',
+    icon: '📐',
+    accent: 'peach',
+    domain: 'shape-and-measurement',
+    status: 'available',
+    Component: TrigRatioPage,
   },
   {
     id: 'combinatorics',
@@ -271,10 +284,14 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
         id: 'middle-3',
         title: '3학년',
         subtitle: '이차방정식 · 이차함수 · 삼각비',
-        description: '이차함수의 그래프를 계수별로 움직여 보며 포물선의 꼴을 익힙니다.',
+        description:
+          '이차함수의 그래프를 계수별로 움직여 보고, 특수각의 삼각비가 직각삼각형에서 어떻게 나오는지 확인합니다.',
         icon: '3️⃣',
         accent: 'violet',
-        entries: [{ activityId: 'functions', note: '이차함수의 그래프' }],
+        entries: [
+          { activityId: 'functions', note: '이차함수의 그래프' },
+          { activityId: 'trig-ratio', note: '삼각비와 특수각' },
+        ],
       },
     ],
   },
