@@ -1,5 +1,5 @@
-import type { ActivityMeta, DomainMeta, SubjectMeta } from '../modules/registry'
-import { findDomain, findSubject, findActivity, locateActivity } from '../modules/registry'
+import type { ActivityMeta, CourseMeta, SchoolLevelMeta } from '../modules/registry'
+import { courseEntries, findCourse, findLevel, isActivityOpen, primaryPlacement } from '../modules/registry'
 
 /**
  * The four screens the site can show, already resolved against the registry so
@@ -7,38 +7,45 @@ import { findDomain, findSubject, findActivity, locateActivity } from '../module
  */
 export type Route =
   | { kind: 'home' }
-  | { kind: 'subject'; subject: SubjectMeta }
-  | { kind: 'domain'; subject: SubjectMeta; domain: DomainMeta }
-  | { kind: 'activity'; subject: SubjectMeta; domain: DomainMeta; activity: ActivityMeta }
+  | { kind: 'level'; level: SchoolLevelMeta }
+  | { kind: 'course'; level: SchoolLevelMeta; course: CourseMeta }
+  | { kind: 'activity'; level: SchoolLevelMeta; course: CourseMeta; activity: ActivityMeta }
   | { kind: 'not-found'; path: string }
+
+/**
+ * Id of the single "수학" subject the site briefly used as its first level,
+ * before browsing moved to school level and grade. Addresses beginning with it
+ * are treated as old links rather than as a level.
+ */
+const RETIRED_SUBJECT_ID = 'math'
 
 export const HOME_HREF = '#/'
 
-export function subjectHref(subject: SubjectMeta): string {
-  return `#/${subject.id}`
+export function levelHref(level: SchoolLevelMeta): string {
+  return `#/${level.id}`
 }
 
-export function domainHref(subject: SubjectMeta, domain: DomainMeta): string {
-  return `#/${subject.id}/${domain.id}`
+export function courseHref(level: SchoolLevelMeta, course: CourseMeta): string {
+  return `#/${level.id}/${course.id}`
 }
 
-export function activityHref(subject: SubjectMeta, domain: DomainMeta, activity: ActivityMeta): string {
-  return `#/${subject.id}/${domain.id}/${activity.id}`
+export function activityHref(level: SchoolLevelMeta, course: CourseMeta, activity: ActivityMeta): string {
+  return `#/${level.id}/${course.id}/${activity.id}`
 }
 
 /**
- * Turns a hash path such as "math/data-and-possibility/probability" into a
+ * Turns a hash path such as "high/probability-statistics/probability" into a
  * Route. The number of segments picks the level:
  *
- *   ""                          → home, the subject gallery
- *   "math"                      → one subject, its domains
- *   "math/<domain>"             → one domain, its activities
- *   "math/<domain>/<activity>"  → the activity itself
+ *   ""                              → home, the school-level gallery
+ *   "high"                          → one school level, its courses
+ *   "high/<course>"                 → one grade or subject, its activities
+ *   "high/<course>/<activity>"      → the activity itself
  *
- * A single segment that is not a subject is also tried as a bare activity id,
- * because links of the old flat form `#/probability` were shared before the
- * subject and domain levels existed. Those still open the right activity;
- * App then rewrites the address bar to the canonical three-segment form.
+ * Two older address shapes are still understood, because links to them were
+ * shared before this tree existed: a bare `#/<activityId>`, and the short-lived
+ * `#/math/<domain>/<activityId>`. Both land on the activity's first placement,
+ * and App then rewrites the address bar to the canonical form.
  */
 export function resolveRoute(path: string): Route {
   const segments = path.split('/').filter(Boolean)
@@ -47,24 +54,27 @@ export function resolveRoute(path: string): Route {
   if (segments.length === 0) return { kind: 'home' }
   if (segments.length > 3) return notFound
 
-  const [subjectId, domainId, activityId] = segments
-  const subject = findSubject(subjectId)
+  const [first, second, third] = segments
+  const level = findLevel(first)
 
-  if (!subject) {
-    if (segments.length > 1) return notFound
-    const located = locateActivity(subjectId)
-    return located && isOpen(located.activity) ? { kind: 'activity', ...located } : notFound
+  if (!level) {
+    if (first === RETIRED_SUBJECT_ID) {
+      // "#/math" and "#/math/<domain>" were listing pages that no longer
+      // exist; only the three-segment form still names an activity.
+      return segments.length === 3 ? asActivity(third) ?? notFound : { kind: 'home' }
+    }
+    return segments.length === 1 ? asActivity(first) ?? notFound : notFound
   }
 
-  if (segments.length === 1) return { kind: 'subject', subject }
+  if (segments.length === 1) return { kind: 'level', level }
 
-  const domain = findDomain(subject, domainId)
-  if (!domain) return notFound
-  if (segments.length === 2) return { kind: 'domain', subject, domain }
+  const course = findCourse(level, second)
+  if (!course) return notFound
+  if (segments.length === 2) return { kind: 'course', level, course }
 
-  const activity = findActivity(domain, activityId)
-  if (!activity || !isOpen(activity)) return notFound
-  return { kind: 'activity', subject, domain, activity }
+  const entry = courseEntries(course).find(({ activity }) => activity.id === third)
+  if (!entry || !isActivityOpen(entry.activity)) return notFound
+  return { kind: 'activity', level, course, activity: entry.activity }
 }
 
 /**
@@ -76,12 +86,12 @@ export function canonicalPath(route: Route): string | null {
   switch (route.kind) {
     case 'home':
       return ''
-    case 'subject':
-      return route.subject.id
-    case 'domain':
-      return `${route.subject.id}/${route.domain.id}`
+    case 'level':
+      return route.level.id
+    case 'course':
+      return `${route.level.id}/${route.course.id}`
     case 'activity':
-      return `${route.subject.id}/${route.domain.id}/${route.activity.id}`
+      return `${route.level.id}/${route.course.id}/${route.activity.id}`
     case 'not-found':
       return null
   }
@@ -93,10 +103,10 @@ export function routeTitle(route: Route): string {
   switch (route.kind) {
     case 'home':
       return site
-    case 'subject':
-      return `${route.subject.title} · ${site}`
-    case 'domain':
-      return `${route.domain.title} · ${site}`
+    case 'level':
+      return `${route.level.title} · ${site}`
+    case 'course':
+      return `${route.course.title} · ${site}`
     case 'activity':
       return `${route.activity.title} · ${site}`
     case 'not-found':
@@ -104,6 +114,7 @@ export function routeTitle(route: Route): string {
   }
 }
 
-function isOpen(activity: ActivityMeta): boolean {
-  return activity.status === 'available' && activity.Component !== undefined
+function asActivity(activityId: string): Route | undefined {
+  const placement = primaryPlacement(activityId)
+  return placement && isActivityOpen(placement.activity) ? { kind: 'activity', ...placement } : undefined
 }

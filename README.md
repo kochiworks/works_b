@@ -1,40 +1,71 @@
 # 수학 탐구 놀이터
 
-수업과 자기주도학습에서 쓰는 교과 시뮬레이션 모음입니다. 공식을 외우기 전에
+수업과 자기주도학습에서 쓰는 수학 시뮬레이션 모음입니다. 공식을 외우기 전에
 직접 조작해보며 원리를 확인하는 것이 목표입니다.
 
 🔗 배포: https://kochiworks.github.io/works_b/
 
 ## 사이트 구조
 
-교과 → 영역 → 활동의 3단계로 정리되어 있고, 주소도 그대로 3단계입니다.
+학교급 → 학년·과목 → 활동의 3단계로 정리되어 있고, 주소도 그대로 3단계입니다.
 
 ```
-#/                                         교과 목록 (홈)
-#/math                                      수학의 영역 목록
-#/math/data-and-possibility                 그 영역의 활동 목록
-#/math/data-and-possibility/probability     활동(시뮬레이션)
+#/                                          학교급 (홈)
+#/high                                       고등학교의 과목 목록
+#/high/probability-statistics                확률과 통계의 활동 목록
+#/high/probability-statistics/probability    활동(시뮬레이션)
 ```
 
-영역은 2022 개정 교육과정의 네 영역(수와 연산 · 변화와 관계 · 도형과 측정 ·
-자료와 가능성)을 따릅니다.
+```
+🧒 초등학교 ── 1~2학년 · 3~4학년 · 5~6학년
+🎒 중학교  ── 1학년 · 2학년 · 3학년
+🎓 고등학교 ── [공통]     공통수학1 · 공통수학2
+              [일반 선택] 대수 · 미적분Ⅰ · 확률과 통계
+              [진로 선택] 기하 · 미적분Ⅱ · 경제 수학 · 인공지능 수학 · 직무 수학
+              [융합 선택] 수학과 문화 · 실용 통계 · 수학과제 탐구
+```
 
-주소가 한 칸(`#/probability`)뿐인 예전 링크도 그대로 열리며, 열린 뒤에
-3단계 주소로 자동 정리됩니다.
+고등학교 과목은 2022 개정 교육과정을 그대로 따르며, 과목 페이지 안에서
+공통 / 일반 선택 / 진로 선택 / 융합 선택 소제목으로 묶어 보여줍니다. 이건
+화면 안의 구획일 뿐 라우팅 단계는 아닙니다.
 
-## 활동 · 영역 · 교과 추가하기
+교육과정의 네 영역(수와 연산 · 변화와 관계 · 도형과 측정 · 자료와 가능성)은
+내비게이션 축에서는 빠졌지만, 활동마다 하나씩 달려 활동 카드에 태그로
+표시됩니다.
 
-세 단계 모두 `src/modules/registry.tsx`의 `SUBJECTS` 트리 한 곳만 고치면
-홈 화면 · 라우팅 · breadcrumb이 전부 따라옵니다.
+### 한 활동을 여러 학년·과목에 놓기
 
-- **활동 추가** — `src/modules/<이름>/` 폴더를 만들어 페이지를 구현한 뒤,
-  해당 영역의 `activities` 배열에 항목을 추가합니다.
-- **영역 추가** — 교과의 `domains` 배열에 `DomainMeta`를 추가합니다.
-- **교과 추가** — `SUBJECTS`에 `SubjectMeta`를 추가합니다. 홈 화면 그리드는
-  `auto-fit`이라 교과가 둘 이상이 되면 자동으로 여러 칸으로 나뉩니다.
+활동은 `ACTIVITIES`에 **한 번만** 정의하고, 그것을 가르치는 모든 학년·과목의
+`entries`에서 id로 참조합니다. 구현은 하나뿐이고 배치만 여러 개입니다.
+배치마다 `note`를 달면 그 과목의 표현으로 소개됩니다.
 
-아직 만들지 않은 활동/교과는 `status: 'soon'`으로 두면 "준비 중" 카드로
-표시되고 링크되지 않습니다.
+```ts
+// 중학교 3학년
+{ activityId: 'functions', note: '이차함수의 그래프' }
+// 대수
+{ activityId: 'functions', note: '지수 · 로그함수와 삼각함수' }
+```
+
+### 예전 링크
+
+한 칸짜리 `#/probability`, 그리고 잠깐 쓰였던 `#/math/<영역>/<활동>` 형태도
+그대로 열립니다. 활동이 처음 배치된 학년·과목으로 보내고, 주소창만 3단계
+정규 주소로 정리합니다.
+
+## 활동 · 학년/과목 · 학교급 추가하기
+
+세 가지 모두 `src/modules/registry.tsx` 한 곳만 고치면 홈 화면 · 라우팅 ·
+breadcrumb이 전부 따라옵니다.
+
+- **활동 추가** — `src/modules/<이름>/` 폴더를 만들어 페이지를 구현하고,
+  `ACTIVITIES`에 항목을 넣은 뒤, 그 활동을 다루는 학년·과목의 `entries`에
+  id를 추가합니다.
+- **학년/과목 추가** — 학교급의 `courses` 배열에 `CourseMeta`를 추가합니다.
+  고등학교라면 `band`에 과목 구분을 적습니다.
+- **학교급 추가** — `SCHOOL_LEVELS`에 `SchoolLevelMeta`를 추가합니다.
+
+활동이 하나도 없는 학년·과목은 "준비 중" 카드로 흐리게 표시되고 링크되지
+않습니다. 채워야 할 곳이 한눈에 보이도록 일부러 남겨 둔 것입니다.
 
 ## 모듈은 서로 코드를 공유하지 않습니다
 
@@ -58,20 +89,20 @@ src/
   App.css                 사이트 셸과 browse 계층 스타일 (browse- 접두사)
   index.css               파스텔 디자인 토큰(--accent, --mint, ... )
   lib/
-    routes.ts             해시 경로 ↔ Route 변환, 주소 정규화, 문서 제목
+    routes.ts             해시 경로 ↔ Route 변환, 예전 주소 정규화, 문서 제목
   hooks/
     useHashRoute.ts       location.hash 추적
   pages/
-    HomePage.tsx          교과 목록
-    SubjectPage.tsx       영역 목록
-    DomainPage.tsx        활동 목록
+    HomePage.tsx          학교급 목록
+    LevelPage.tsx         학년·과목 목록 (고등학교는 과목 구분별로 묶음)
+    CoursePage.tsx        활동 목록
     NotFoundPage.tsx      없는 주소
   components/
     SiteHeader.tsx        상단 바 + breadcrumb
-    PageIntro.tsx         교과/영역 페이지 머리말
-    SubjectCard.tsx / DomainCard.tsx / ActivityCard.tsx
+    PageIntro.tsx         학교급/과목 페이지 머리말
+    LevelCard.tsx / CourseCard.tsx / ActivityCard.tsx
   modules/
-    registry.tsx          교과 → 영역 → 활동 트리 (사이트의 단일 출처)
+    registry.tsx          ACTIVITIES(활동 정의) + SCHOOL_LEVELS(배치 트리)
     numberSense/          수 감각 익히기
     placeValue/           가로셈 · 세로셈 탐구기
     functions/            함수의 그래프

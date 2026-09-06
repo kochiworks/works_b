@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import type { Crumb } from './components/SiteHeader'
 import { SiteHeader } from './components/SiteHeader'
-import { DomainPage } from './pages/DomainPage'
+import { CoursePage } from './pages/CoursePage'
 import { HomePage } from './pages/HomePage'
+import { LevelPage } from './pages/LevelPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { SubjectPage } from './pages/SubjectPage'
 import { useHashRoute } from './hooks/useHashRoute'
 import type { Route } from './lib/routes'
-import { canonicalPath, domainHref, resolveRoute, routeTitle, subjectHref } from './lib/routes'
+import { canonicalPath, courseHref, levelHref, resolveRoute, routeTitle } from './lib/routes'
 import './App.css'
 
 function App() {
@@ -20,9 +20,9 @@ function App() {
     document.title = title
   }, [title])
 
-  // Old flat links (#/probability) and stray trailing slashes resolve fine but
-  // should not stay in the address bar; replace() keeps them out of history so
-  // the back button still leaves the site in one step.
+  // Old links (#/probability, #/math/<domain>/<activity>) and stray trailing
+  // slashes resolve fine but should not stay in the address bar; replace()
+  // keeps them out of history so the back button still leaves in one step.
   useEffect(() => {
     if (canonical !== null && canonical !== path) {
       window.location.replace(`#/${canonical}`)
@@ -48,10 +48,10 @@ function renderRoute(route: Route) {
   switch (route.kind) {
     case 'home':
       return <HomePage />
-    case 'subject':
-      return <SubjectPage subject={route.subject} />
-    case 'domain':
-      return <DomainPage subject={route.subject} domain={route.domain} />
+    case 'level':
+      return <LevelPage level={route.level} />
+    case 'course':
+      return <CoursePage level={route.level} course={route.course} />
     case 'activity': {
       const { Component } = route.activity
       return Component ? <Component /> : <NotFoundPage path={route.activity.id} />
@@ -66,17 +66,17 @@ function buildTrail(route: Route): Crumb[] {
   switch (route.kind) {
     case 'home':
       return []
-    case 'subject':
-      return [{ label: route.subject.title, icon: route.subject.icon }]
-    case 'domain':
+    case 'level':
+      return [{ label: route.level.title, icon: route.level.icon }]
+    case 'course':
       return [
-        { label: route.subject.title, icon: route.subject.icon, href: subjectHref(route.subject) },
-        { label: route.domain.title, icon: route.domain.icon },
+        { label: route.level.title, icon: route.level.icon, href: levelHref(route.level) },
+        { label: route.course.title, icon: route.course.icon },
       ]
     case 'activity':
       return [
-        { label: route.subject.title, icon: route.subject.icon, href: subjectHref(route.subject) },
-        { label: route.domain.title, icon: route.domain.icon, href: domainHref(route.subject, route.domain) },
+        { label: route.level.title, icon: route.level.icon, href: levelHref(route.level) },
+        { label: route.course.title, icon: route.course.icon, href: courseHref(route.level, route.course) },
         { label: route.activity.title, icon: route.activity.icon },
       ]
     case 'not-found':

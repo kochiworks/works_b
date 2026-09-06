@@ -210,9 +210,9 @@
   line-height: 1.6;
 }
 
-/* --- Home: subject cards --- */
+/* --- Home: school level cards --- */
 
-.browse-subject-grid {
+.browse-level-grid {
   display: grid;
   /* auto-fit, so a single subject fills the row as a wide feature card and a
      second one splits it into two columns without any other change. */
@@ -220,7 +220,7 @@
   gap: 22px;
 }
 
-.browse-subject-card {
+.browse-level-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -237,66 +237,62 @@
     box-shadow 180ms ease;
 }
 
-.browse-subject-card:hover {
+.browse-level-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
-.browse-subject-card.is-soon {
+.browse-level-card.is-soon {
   cursor: default;
   opacity: 0.62;
   box-shadow: var(--shadow-sm);
 }
 
-.browse-subject-card.is-soon:hover {
+.browse-level-card.is-soon:hover {
   transform: none;
   box-shadow: var(--shadow-sm);
 }
 
-.browse-subject-card-head {
+.browse-level-card-head {
   display: flex;
-  align-items: center;
+  /* Top-aligned, not centred: a level whose subtitle wraps to two lines would
+     otherwise sit a few pixels higher than its neighbours on the home row. */
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 14px;
 }
 
-.browse-subject-card-icon {
+.browse-level-card-icon {
   width: 60px;
   height: 60px;
   font-size: 1.9rem;
   flex: none;
 }
 
-.browse-subject-card-heading {
+.browse-level-card-heading {
+  /* Shrink rather than wrap under the icon: 고등학교's subtitle lists four
+     subject categories and would otherwise push the whole block onto its own
+     line, leaving the three home cards misaligned. */
+  flex: 1 1 0;
   min-width: 0;
 }
 
-.browse-subject-card-title {
+.browse-level-card-title {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.browse-subject-card-subtitle {
+.browse-level-card-subtitle {
   margin: 4px 0 0;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent-strong);
 }
 
-.browse-subject-card-meta {
-  margin-left: auto;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-soft);
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
 
-.browse-subject-card-description {
+.browse-level-card-description {
   margin: 0;
   color: var(--text-muted);
   font-size: 0.95rem;
@@ -304,8 +300,9 @@
 }
 
 /* Preview of what is one level down. Deliberately not links: the whole
-   subject card is a single click target. */
-.browse-subject-card-domains {
+   level card is a single click target. Grades and subjects with nothing in
+   them yet are summed into one muted chip instead of listed. */
+.browse-level-card-courses {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -343,7 +340,41 @@
   text-align: center;
 }
 
-/* --- Subject / domain page heading --- */
+.browse-chip.is-empty {
+  background: var(--surface-soft);
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+/* --- Card footer: call to action beside the curriculum-strand tag --- */
+
+.browse-card-foot {
+  margin-top: auto;
+  padding-top: 4px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.browse-card-foot .browse-cta {
+  margin-top: 0;
+}
+
+.browse-tag {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  color: var(--text-faint);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* --- Level / course page heading --- */
 
 .browse-intro {
   background: var(--surface);
@@ -409,15 +440,35 @@
   line-height: 1.65;
 }
 
-/* --- Subject page: domain cards --- */
+/* --- Level page: grade and subject cards --- */
 
-.browse-domain-grid {
+/* 고등학교 splits its subjects under 공통 / 일반 선택 / 진로 선택 /
+   융합 선택 headings; 초·중 have no bands and render as a single grid. */
+
+.browse-band {
+  margin-bottom: 34px;
+}
+
+.browse-band:last-of-type {
+  margin-bottom: 0;
+}
+
+.browse-band-title {
+  margin: 0 0 14px;
+  padding-left: 4px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-muted);
+}
+
+.browse-course-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(264px, 1fr));
   gap: 20px;
 }
 
-.browse-domain-card {
+.browse-course-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -435,40 +486,51 @@
     box-shadow 180ms ease;
 }
 
-.browse-domain-card:hover {
+.browse-course-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
-.browse-domain-card-icon {
+.browse-course-card.is-soon {
+  cursor: default;
+  opacity: 0.55;
+  box-shadow: var(--shadow-sm);
+}
+
+.browse-course-card.is-soon:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.browse-course-card-icon {
   width: 52px;
   height: 52px;
   font-size: 1.6rem;
   margin-bottom: 6px;
 }
 
-.browse-domain-card-title {
+.browse-course-card-title {
   margin: 0;
   font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
 
-.browse-domain-card-subtitle {
+.browse-course-card-subtitle {
   margin: 0;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--accent-strong);
 }
 
-.browse-domain-card-description {
+.browse-course-card-description {
   margin: 4px 0 10px;
   font-size: 0.9rem;
   color: var(--text-muted);
   line-height: 1.55;
 }
 
-.browse-domain-card-activities {
+.browse-course-card-activities {
   list-style: none;
   margin: 0 0 14px;
   padding: 12px 14px;
@@ -480,17 +542,12 @@
   line-height: 1.5;
 }
 
-.browse-domain-card-activities li + li {
+.browse-course-card-activities li + li {
   margin-top: 4px;
 }
 
-.browse-domain-card-empty {
-  margin: 4px 0 14px;
-  color: var(--text-faint);
-  font-size: 0.85rem;
-}
 
-/* --- Domain page: activity cards --- */
+/* --- Course page: activity cards --- */
 
 .browse-activity-grid {
   display: grid;
@@ -610,12 +667,9 @@
     padding: 36px 16px 64px;
   }
 
-  .browse-subject-card,
+  .browse-level-card,
   .browse-intro {
     padding: 24px 20px;
   }
 
-  .browse-subject-card-meta {
-    margin-left: 0;
-  }
 }
