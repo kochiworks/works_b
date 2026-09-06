@@ -181,6 +181,17 @@ export interface SchoolLevelMeta {
  *  - 확률 states P(A) as a fraction, decimal and percentage, and always shows
  *    the binomial-to-normal approximation. 초5~6 only asks for 가능성 in
  *    words and as 0, 1/2, 1.
+ *
+ * Two more are absent from 중학교 for the same reason:
+ *
+ *  - 함수의 그래프 is not placed in 중1. It has no 정비례 or 반비례 mode at
+ *    all: 정비례 is 일차함수 with b set to 0 ("기울기 a" / "y절편 b", both
+ *    중2 vocabulary) and 반비례 is 유리함수 with p and q set to 0 ("점근선"
+ *    sliders, 공통수학2 vocabulary). Its 중2 and 중3 placements match exactly.
+ *  - 경우의 수 탐색기 is not placed in 중2. Its only modes are 순열 · 조합 ·
+ *    중복순열 · 중복조합 and it writes nPr, nCr = nPr ÷ r!, nΠr and nHr in
+ *    textbook notation. 중2 counts cases with tables and tree diagrams; the
+ *    symbols belong to 확률과 통계.
  */
 export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
   {
@@ -239,21 +250,20 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
         id: 'middle-1',
         title: '1학년',
         subtitle: '정수와 유리수 · 문자와 식 · 좌표평면과 그래프',
-        description: '좌표평면 위에서 두 양의 관계를 그래프로 나타내는 것을 처음 다룹니다.',
+        description: '좌표평면 위에서 두 양의 관계를 그래프로 나타내는 것을 처음 다루는 학년입니다.',
         icon: '1️⃣',
         accent: 'mint',
-        entries: [{ activityId: 'functions', note: '좌표평면과 그래프 · 정비례와 반비례' }],
+        entries: [],
       },
       {
         id: 'middle-2',
         title: '2학년',
         subtitle: '일차함수 · 경우의 수와 확률 · 도형의 성질',
-        description: '일차함수의 그래프가 계수에 따라 어떻게 변하는지, 경우의 수가 확률로 어떻게 이어지는지 봅니다.',
+        description: '일차함수의 그래프가 계수에 따라 어떻게 변하는지 살피고, 시행을 반복하며 확률을 확인합니다.',
         icon: '2️⃣',
         accent: 'sky',
         entries: [
           { activityId: 'functions', note: '일차함수의 그래프' },
-          { activityId: 'combinatorics', note: '경우의 수 구하기' },
           { activityId: 'probability', note: '확률과 그 기본 성질' },
         ],
       },
