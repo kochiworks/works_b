@@ -170,6 +170,17 @@ export interface SchoolLevelMeta {
  *
  * A course with no entries renders as a dimmed "준비 중" card, which is how
  * the yet-to-be-filled subjects of the curriculum stay visible as targets.
+ *
+ * A placement has to match what the simulation actually asks of the reader,
+ * not just the name of the unit. Two are deliberately absent from 초등학교:
+ *
+ *  - 도형의 이동 works on a signed coordinate plane (-8..8) and offers 직선,
+ *    원 and 이차함수 alongside polygons, 직선 y=x 대칭 and rotation about the
+ *    origin. 초4's 평면도형의 이동 is 밀기 · 뒤집기 · 돌리기 on plain grid
+ *    paper, and the coordinate plane itself only arrives in 중1.
+ *  - 확률 states P(A) as a fraction, decimal and percentage, and always shows
+ *    the binomial-to-normal approximation. 초5~6 only asks for 가능성 in
+ *    words and as 0, 1/2, 1.
  */
 export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
   {
@@ -177,7 +188,7 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
     title: '초등학교',
     subtitle: '1~2학년 · 3~4학년 · 5~6학년',
     description:
-      '교육과정이 묶는 학년군을 그대로 따랐습니다. 수를 눈에 보이는 교구로 바꿔 놓고 계산과 도형을 손으로 익히는 활동이 모여 있습니다.',
+      '교육과정이 묶는 학년군을 그대로 따랐습니다. 수를 눈에 보이는 교구로 바꿔 놓고 계산의 원리를 손으로 익히는 활동이 모여 있습니다.',
     icon: '🧒',
     accent: 'lemon',
     pickLabel: '학년 고르기',
@@ -195,13 +206,12 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
         id: 'grade-3-4',
         title: '3~4학년',
         subtitle: '세 자리 수의 계산 · 나눗셈 · 평면도형',
-        description: '자릿값과 받아올림이 드러나는 계산, 그리고 도형을 밀고 뒤집고 돌리는 활동을 다룹니다.',
+        description: '자릿값과 받아올림이 드러나는 계산 과정을 한 자리씩 따라갑니다.',
         icon: '🌿',
         accent: 'peach',
         entries: [
           { activityId: 'place-value', note: '세 자리 수의 덧셈 · 뺄셈과 곱셈 · 나눗셈' },
           { activityId: 'number-sense', note: '나눗셈과 곱셈의 관계' },
-          { activityId: 'transformations', note: '평면도형 밀기 · 뒤집기 · 돌리기' },
         ],
       },
       {
@@ -211,7 +221,7 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
         description: '수의 관계를 식으로 나타내고, 일이 일어날 가능성을 수로 말해보기 시작합니다.',
         icon: '🌳',
         accent: 'rose',
-        entries: [{ activityId: 'probability', note: '일이 일어날 가능성' }],
+        entries: [],
       },
     ],
   },
