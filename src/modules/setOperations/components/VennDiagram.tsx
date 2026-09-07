@@ -1,5 +1,14 @@
 import { Fragment } from 'react'
-import { allRegions, elementPositions, geometryFor, regionKey } from '../lib/regions'
+import {
+  allRegions,
+  elementPositions,
+  geometryFor,
+  labelPoint,
+  leaderLine,
+  openArcPath,
+  openFramePath,
+  regionKey,
+} from '../lib/regions'
 import type { Circle, VennGeometry } from '../lib/regions'
 import type { Membership, SetName } from '../lib/types'
 
@@ -18,6 +27,11 @@ interface Props {
  * The fixed textbook arrangement — two overlapping circles, or three — with the
  * regions of the chosen expression filled in and every element of U written
  * where it belongs.
+ *
+ * Each boundary is drawn as an open curve with its name attached at the break,
+ * the way the textbook draws it. The masks below still use whole circles, so
+ * the break is purely how the diagram is drawn: which elements sit in which
+ * region, and which regions get filled, are unaffected.
  *
  * Regions are cut out with nested SVG masks rather than computed lens paths:
  * one mask per set marks its inside, another its outside, and nesting them
@@ -53,15 +67,9 @@ export function VennDiagram({ idPrefix, setCount, shaded, universe, membership, 
           ))}
         </defs>
 
-        <rect
-          className="venn-frame"
-          x={geo.frame.x}
-          y={geo.frame.y}
-          width={geo.frame.w}
-          height={geo.frame.h}
-          rx={14}
-        />
-        <text className="venn-universe-label" x={geo.frame.x + 14} y={geo.frame.y + 22}>
+        <path className="venn-frame" d={openFramePath(geo)} />
+        <line className="venn-leader" {...geo.universeLeader} />
+        <text className="venn-universe-label" x={geo.universeLabel.x} y={geo.universeLabel.y}>
           U
         </text>
 
@@ -71,17 +79,26 @@ export function VennDiagram({ idPrefix, setCount, shaded, universe, membership, 
             <RegionFill key={regionKey(region, setCount)} idPrefix={idPrefix} geo={geo} names={names} region={region} />
           ))}
 
-        {names.map((name) => (
-          <circle key={name} className="venn-outline" {...circleOf(geo, name)} />
-        ))}
-
         {names.map((name) => {
-          const label = geo.nameLabels[name]
-          return label ? (
-            <text key={name} className="venn-set-label" x={label.x} y={label.y}>
-              {name}
-            </text>
-          ) : null
+          const circle = circleOf(geo, name)
+          const angle = geo.labelAngles[name] ?? 90
+          const label = labelPoint(circle, angle)
+          return (
+            <Fragment key={name}>
+              <path
+                className="venn-outline"
+                d={openArcPath(circle, angle)}
+                data-set={name}
+                data-cx={circle.cx}
+                data-cy={circle.cy}
+                data-r={circle.r}
+              />
+              <line className="venn-leader" {...leaderLine(circle, angle)} />
+              <text className="venn-set-label" x={label.x} y={label.y}>
+                {name}
+              </text>
+            </Fragment>
+          )
         })}
 
         {[...byRegion.entries()].map(([key, values]) => {
@@ -122,7 +139,7 @@ function RegionFill({
       y={geo.frame.y}
       width={geo.frame.w}
       height={geo.frame.h}
-      rx={14}
+      rx={geo.frame.radius}
     />
   )
   for (const name of names) {
