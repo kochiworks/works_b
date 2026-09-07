@@ -508,10 +508,9 @@
   opacity: 0.34;
 }
 
-/* Boundaries are open curves with a break where the name attaches, so the
-   drawn line never closes around the region it names. */
-.set-operations-page .venn-outline,
-.set-operations-page .venn-leader {
+/* Boundaries are open curves whose name sits in the opening, so the drawn
+   line never closes around the region it names. */
+.set-operations-page .venn-outline {
   fill: none;
   stroke: var(--text-muted);
   stroke-width: 1.8;

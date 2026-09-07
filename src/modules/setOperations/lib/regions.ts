@@ -11,34 +11,26 @@ export interface Point {
   y: number
 }
 
-export interface Line {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
-}
-
 /**
- * Every boundary in these diagrams is drawn as an open curve: the stroke stops
- * short of closing, and a short leader runs out of that break to the set's
- * name. That is how the textbook draws it, and it keeps the drawn line from
- * reading as part of the set — the region a set stands for is its inside, not
- * its edge. The masks that decide shading still use whole circles, so the
- * break changes only what is drawn, never which elements belong where.
+ * Every boundary in these diagrams is drawn as an open curve, and the set's
+ * name sits in the opening itself — the stroke stops, the letter takes that
+ * space, and the stroke picks up on the other side. That is how the textbook
+ * draws it, and it keeps the drawn line from reading as part of the set: the
+ * region a set stands for is its inside, not its edge. The masks that decide
+ * shading still use whole circles, so the opening changes only what is drawn,
+ * never which elements belong where.
  */
-export const GAP_DEGREES = 30
-/** How far the leader reaches out of the break. */
-export const LEADER_LENGTH = 13
-/** Where the name is written, measured out from the curve. */
-export const LABEL_OFFSET = 27
+
+/** Clear space a one-letter name needs in the curve, in user units. */
+export const NAME_GAP = 28
+/** Clear space "A = B" needs when one curve carries both names. */
+export const WIDE_NAME_GAP = 62
 
 export interface VennGeometry {
   width: number
   height: number
   frame: { x: number; y: number; w: number; h: number; radius: number }
-  /** Horizontal span of the break in the frame's top edge. */
-  frameGap: { from: number; to: number }
-  universeLeader: Line
+  /** Centre of the opening in the frame's top edge, where U is written. */
   universeLabel: Point
   circles: { A: Circle; B: Circle; C?: Circle }
   /** Direction of each set's break, in degrees counterclockwise from east. */
@@ -53,44 +45,40 @@ export interface VennGeometry {
 /** Two overlapping circles, the arrangement the textbook uses for A ∪ B. */
 export const VENN_2: VennGeometry = {
   width: 360,
-  height: 272,
-  frame: { x: 8, y: 30, w: 344, h: 232, radius: 14 },
-  frameGap: { from: 296, to: 326 },
-  universeLeader: { x1: 311, y1: 30, x2: 325, y2: 19 },
-  universeLabel: { x: 333, y: 15 },
-  circles: { A: { cx: 145, cy: 146, r: 78 }, B: { cx: 215, cy: 146, r: 78 } },
+  height: 252,
+  frame: { x: 8, y: 14, w: 344, h: 226, radius: 14 },
+  universeLabel: { x: 306, y: 14 },
+  circles: { A: { cx: 145, cy: 130, r: 78 }, B: { cx: 215, cy: 130, r: 78 } },
   labelAngles: { A: 128, B: 52 },
   centroids: {
-    A: { x: 103, y: 146 },
-    AB: { x: 180, y: 146 },
-    B: { x: 257, y: 146 },
-    '': { x: 34, y: 243 },
+    A: { x: 103, y: 130 },
+    AB: { x: 180, y: 130 },
+    B: { x: 257, y: 130 },
+    '': { x: 34, y: 224 },
   },
 }
 
 /** Three circles in the classic arrangement, A above B and C. */
 export const VENN_3: VennGeometry = {
   width: 360,
-  height: 344,
-  frame: { x: 8, y: 30, w: 344, h: 304, radius: 14 },
-  frameGap: { from: 296, to: 326 },
-  universeLeader: { x1: 311, y1: 30, x2: 325, y2: 19 },
-  universeLabel: { x: 333, y: 15 },
+  height: 324,
+  frame: { x: 8, y: 14, w: 344, h: 298, radius: 14 },
+  universeLabel: { x: 306, y: 14 },
   circles: {
-    A: { cx: 180, cy: 152, r: 76 },
-    B: { cx: 138, cy: 226, r: 76 },
-    C: { cx: 222, cy: 226, r: 76 },
+    A: { cx: 180, cy: 136, r: 76 },
+    B: { cx: 138, cy: 210, r: 76 },
+    C: { cx: 222, cy: 210, r: 76 },
   },
-  labelAngles: { A: 90, B: 205, C: 335 },
+  labelAngles: { A: 90, B: 200, C: 340 },
   centroids: {
-    A: { x: 180, y: 106 },
-    B: { x: 98, y: 252 },
-    C: { x: 262, y: 252 },
-    AB: { x: 128, y: 202 },
-    AC: { x: 232, y: 202 },
-    BC: { x: 180, y: 266 },
-    ABC: { x: 180, y: 212 },
-    '': { x: 34, y: 315 },
+    A: { x: 180, y: 90 },
+    B: { x: 104, y: 238 },
+    C: { x: 256, y: 238 },
+    AB: { x: 128, y: 186 },
+    AC: { x: 232, y: 186 },
+    BC: { x: 180, y: 250 },
+    ABC: { x: 180, y: 196 },
+    '': { x: 34, y: 296 },
   },
 }
 
@@ -109,40 +97,37 @@ export function pointOnCircle(circle: Circle, degrees: number, offset = 0): Poin
 }
 
 /**
- * The circle drawn as an arc that stops short of closing, leaving a break
- * centred on `gapCentre`. Sweeping counterclockwise from one lip of the break
- * round to the other covers 360° − gap, which is always the long way, hence
- * the large-arc flag.
+ * The circle drawn as an arc that stops short of closing, leaving an opening
+ * wide enough for the set's name to sit in. The gap is given in user units and
+ * converted to an angle for this circle, so a small circle and a large one open
+ * by the same amount of space rather than the same angle.
  */
-export function openArcPath(circle: Circle, gapCentre: number, gap = GAP_DEGREES): string {
-  const start = pointOnCircle(circle, gapCentre + gap / 2)
-  const end = pointOnCircle(circle, gapCentre - gap / 2)
+export function openArcPath(circle: Circle, gapCentre: number, gapWidth = NAME_GAP): string {
+  const half = ((gapWidth / 2 / circle.r) * 180) / Math.PI
+  const start = pointOnCircle(circle, gapCentre + half)
+  const end = pointOnCircle(circle, gapCentre - half)
   return `M ${round(start.x)} ${round(start.y)} A ${circle.r} ${circle.r} 0 1 0 ${round(end.x)} ${round(end.y)}`
 }
 
-/** The short line from the break out towards the set's name. */
-export function leaderLine(circle: Circle, gapCentre: number): Line {
-  const from = pointOnCircle(circle, gapCentre)
-  const to = pointOnCircle(circle, gapCentre, LEADER_LENGTH)
-  return { x1: round(from.x), y1: round(from.y), x2: round(to.x), y2: round(to.y) }
-}
-
+/** Where the name goes: in the opening, centred on the curve itself. */
 export function labelPoint(circle: Circle, gapCentre: number): Point {
-  const point = pointOnCircle(circle, gapCentre, LABEL_OFFSET)
+  const point = pointOnCircle(circle, gapCentre)
   return { x: round(point.x), y: round(point.y) }
 }
 
 /**
- * The universe box, likewise left open where its own name attaches. The path
- * is not closed, but filling it joins the two lips along the top edge it was
+ * The universe box, likewise left open where its own name sits. The path is
+ * not closed, but filling it joins the two lips along the top edge it was
  * broken on, so the filled shape is still the whole rounded rectangle.
  */
-export function openFramePath(geo: VennGeometry): string {
+export function openFramePath(geo: VennGeometry, gapWidth = NAME_GAP): string {
   const { x, y, w, h, radius } = geo.frame
   const right = x + w
   const bottom = y + h
+  const gapFrom = geo.universeLabel.x - gapWidth / 2
+  const gapTo = geo.universeLabel.x + gapWidth / 2
   return [
-    `M ${geo.frameGap.to} ${y}`,
+    `M ${gapTo} ${y}`,
     `H ${right - radius}`,
     `A ${radius} ${radius} 0 0 1 ${right} ${y + radius}`,
     `V ${bottom - radius}`,
@@ -151,7 +136,7 @@ export function openFramePath(geo: VennGeometry): string {
     `A ${radius} ${radius} 0 0 1 ${x} ${bottom - radius}`,
     `V ${y + radius}`,
     `A ${radius} ${radius} 0 0 1 ${x + radius} ${y}`,
-    `H ${geo.frameGap.from}`,
+    `H ${gapFrom}`,
   ].join(' ')
 }
 

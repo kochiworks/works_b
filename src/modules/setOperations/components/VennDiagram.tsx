@@ -4,7 +4,6 @@ import {
   elementPositions,
   geometryFor,
   labelPoint,
-  leaderLine,
   openArcPath,
   openFramePath,
   regionKey,
@@ -28,9 +27,10 @@ interface Props {
  * regions of the chosen expression filled in and every element of U written
  * where it belongs.
  *
- * Each boundary is drawn as an open curve with its name attached at the break,
+ * Each boundary is drawn as an open curve whose name sits in the opening — the
+ * stroke stops, the letter occupies that space, and the stroke resumes past it,
  * the way the textbook draws it. The masks below still use whole circles, so
- * the break is purely how the diagram is drawn: which elements sit in which
+ * the opening is purely how the diagram is drawn: which elements sit in which
  * region, and which regions get filled, are unaffected.
  *
  * Regions are cut out with nested SVG masks rather than computed lens paths:
@@ -68,7 +68,6 @@ export function VennDiagram({ idPrefix, setCount, shaded, universe, membership, 
         </defs>
 
         <path className="venn-frame" d={openFramePath(geo)} />
-        <line className="venn-leader" {...geo.universeLeader} />
         <text className="venn-universe-label" x={geo.universeLabel.x} y={geo.universeLabel.y}>
           U
         </text>
@@ -93,7 +92,6 @@ export function VennDiagram({ idPrefix, setCount, shaded, universe, membership, 
                 data-cy={circle.cy}
                 data-r={circle.r}
               />
-              <line className="venn-leader" {...leaderLine(circle, angle)} />
               <text className="venn-set-label" x={label.x} y={label.y}>
                 {name}
               </text>
