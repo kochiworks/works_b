@@ -4,6 +4,7 @@ import { FunctionsPage } from './functions/FunctionsPage'
 import { NumberSensePage } from './numberSense/NumberSensePage'
 import { PlaceValuePage } from './placeValue/PlaceValuePage'
 import { ProbabilityPage } from './probability/ProbabilityPage'
+import { SetOperationsPage } from './setOperations/SetOperationsPage'
 import { TransformationsPage } from './transformations/TransformationsPage'
 import { TrigRatioPage } from './trigRatio/TrigRatioPage'
 
@@ -120,6 +121,18 @@ export const ACTIVITIES: ActivityMeta[] = [
     domain: 'data-and-possibility',
     status: 'available',
     Component: CombinatoricsPage,
+  },
+  {
+    id: 'set-operations',
+    title: '집합의 연산',
+    subtitle: '벤 다이어그램으로 보는 집합',
+    description:
+      '상황을 집합으로 나타내 보고, 두 집합의 포함 관계를 살핀 뒤, 합집합 · 교집합 · 차집합 · 여집합이 벤 다이어그램의 어느 부분인지 색칠해 확인합니다.',
+    icon: '🧩',
+    accent: 'violet',
+    domain: 'number-and-operation',
+    status: 'available',
+    Component: SetOperationsPage,
   },
   {
     id: 'probability',
@@ -324,6 +337,7 @@ export const SCHOOL_LEVELS: SchoolLevelMeta[] = [
         accent: 'violet',
         band: '공통',
         entries: [
+          { activityId: 'set-operations', note: '집합의 연산 — 합집합 · 교집합 · 차집합 · 여집합' },
           { activityId: 'transformations', note: '평행이동과 대칭이동' },
           { activityId: 'functions', note: '유리함수와 무리함수' },
         ],

@@ -12,8 +12,8 @@
 ```
 #/                                          학교급 (홈)
 #/high                                       고등학교의 과목 목록
-#/high/probability-statistics                확률과 통계의 활동 목록
-#/high/probability-statistics/probability    활동(시뮬레이션)
+#/high/common-math-2                         공통수학2의 활동 목록
+#/high/common-math-2/set-operations          활동(시뮬레이션)
 ```
 
 ```
@@ -103,6 +103,7 @@ src/
     LevelCard.tsx / CourseCard.tsx / ActivityCard.tsx
   modules/
     registry.tsx          ACTIVITIES(활동 정의) + SCHOOL_LEVELS(배치 트리)
+    setOperations/        집합의 연산
     numberSense/          수 감각 익히기
     placeValue/           가로셈 · 세로셈 탐구기
     functions/            함수의 그래프

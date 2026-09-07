@@ -1,0 +1,542 @@
+/* Class names here are prefixed or specific to this module. Vite bundles every
+   module's stylesheet into one global sheet, so anything generic would reach
+   the other simulations too. The few shared shells (.panel, .mode-tab,
+   .preset-card, .formula-card) are deliberately the same as the other modules'
+   copies — each module carries its own copy rather than importing one. */
+
+.set-operations-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.set-operations-page .page-intro {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.set-operations-page .page-intro h1 {
+  margin: 0 0 6px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.set-operations-page .subtitle {
+  margin: 0 auto;
+  max-width: 760px;
+  color: var(--text-muted);
+}
+
+.set-operations-page .explorer-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .set-operations-page .explorer-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.set-operations-page .settings-column,
+.set-operations-page .result-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.set-operations-page .panel {
+  background: var(--surface);
+  border: 1px solid var(--border-softer);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.set-operations-page .panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.set-operations-page .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.set-operations-page .panel-header h2 {
+  margin: 0;
+}
+
+.set-operations-page .hint {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  line-height: 1.55;
+}
+
+.set-operations-page .link-btn {
+  border: none;
+  background: none;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0;
+}
+
+.set-operations-page .link-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.set-operations-page .primary-btn {
+  padding: 9px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.set-operations-page .primary-btn:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+.set-operations-page .button-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* --- Preset scenarios --- */
+
+.set-operations-page .preset-panel {
+  margin-bottom: 16px;
+}
+
+.set-operations-page .preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.set-operations-page .preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  cursor: pointer;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.set-operations-page .preset-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+}
+
+.set-operations-page .preset-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.set-operations-page .preset-description {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* --- Tabs --- */
+
+.set-operations-page .mode-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.set-operations-page .mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.set-operations-page .mode-tab:hover:not(.active) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.set-operations-page .mode-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+/* KaTeX inherits colour, so an active tab's formula turns white with its label. */
+.set-operations-page .mode-tab .katex {
+  color: inherit;
+  font-size: 1em;
+}
+
+.set-operations-page .stage-panel {
+  margin-bottom: 4px;
+}
+
+.set-operations-page .stage-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.set-operations-page .stage-hint {
+  margin: 0 0 16px;
+  padding-left: 4px;
+}
+
+.set-operations-page .set-count-badge {
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.set-operations-page .operation-group + .operation-group {
+  margin-top: 16px;
+}
+
+.set-operations-page .operation-group-title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+/* --- Step 1: candidates --- */
+
+.set-operations-page .situation-prompt {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.set-operations-page .candidate-board {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.set-operations-page .candidate {
+  min-width: 44px;
+  padding: 9px 10px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-soft);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease;
+}
+
+.set-operations-page .candidate:hover {
+  border-color: var(--accent);
+}
+
+.set-operations-page .candidate.is-picked {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* After 확인: wrongly picked in rose, missed answers outlined in mint. */
+.set-operations-page .candidate.is-extra {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: #fff;
+}
+
+.set-operations-page .candidate.is-missing {
+  border-color: var(--mint);
+  border-style: dashed;
+  background: var(--mint-soft);
+  color: var(--text);
+}
+
+.set-operations-page .verdict {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.set-operations-page .verdict.is-correct {
+  background: var(--mint-soft);
+  color: var(--text);
+}
+
+.set-operations-page .verdict.is-wrong {
+  background: var(--rose-soft);
+  color: var(--text);
+}
+
+.set-operations-page .relation-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+}
+
+.set-operations-page .relation-verdict-tex {
+  font-size: 1.15rem;
+  color: var(--accent-strong);
+}
+
+/* --- Notation --- */
+
+.set-operations-page .formula-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 22px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--accent-soft), var(--sky-soft));
+  border: 1px solid var(--border-soft);
+}
+
+.set-operations-page .formula-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+}
+
+.set-operations-page .formula-tag {
+  min-width: 76px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-faint);
+}
+
+.set-operations-page .formula-expression--large {
+  font-size: 1.25rem;
+  color: var(--accent-strong);
+}
+
+/* 조건제시법 with a Korean condition: the braces, bar and variable are set in
+   KaTeX's own faces so the line matches the formulas around it, while the
+   Korean words keep the page's UI font. */
+.set-operations-page .set-condition {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.set-operations-page .set-term {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.set-operations-page .set-brace,
+.set-operations-page .set-bar {
+  font-family: 'KaTeX_Main', 'Times New Roman', serif;
+  color: inherit;
+}
+
+.set-operations-page .set-var {
+  font-family: 'KaTeX_Math', 'Times New Roman', serif;
+  font-style: italic;
+}
+
+.set-operations-page .set-words {
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.set-operations-page .subset-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.set-operations-page .subset-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  border: 1px solid var(--border-soft);
+  font-size: 0.88rem;
+}
+
+/* --- Membership grid --- */
+
+.set-operations-page .membership-grid {
+  display: grid;
+  grid-template-columns: 1fr repeat(var(--set-count), 44px);
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 14px;
+}
+
+.set-operations-page .membership-head {
+  padding-bottom: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.set-operations-page .membership-head:first-child {
+  text-align: left;
+}
+
+.set-operations-page .membership-value {
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.set-operations-page .membership-toggle {
+  width: 100%;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  color: var(--text-faint);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.set-operations-page .membership-toggle.is-on.set-a {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.set-operations-page .membership-toggle.is-on.set-b {
+  background: var(--mint-soft);
+  border-color: var(--mint);
+  color: #1f7f65;
+}
+
+.set-operations-page .membership-toggle.is-on.set-c {
+  background: var(--lemon-soft);
+  border-color: var(--lemon);
+  color: #8a6410;
+}
+
+/* --- Venn diagram --- */
+
+.set-operations-page .venn {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.set-operations-page .venn svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.set-operations-page .venn figcaption {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.set-operations-page .venn-frame {
+  fill: var(--surface-soft);
+  stroke: var(--border-soft);
+  stroke-width: 1.5;
+}
+
+.set-operations-page .venn-shade {
+  fill: var(--rose);
+  opacity: 0.34;
+}
+
+.set-operations-page .venn-outline {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 1.8;
+}
+
+.set-operations-page .venn-universe-label,
+.set-operations-page .venn-set-label {
+  font-size: 15px;
+  font-weight: 800;
+  fill: var(--text-muted);
+  text-anchor: middle;
+}
+
+.set-operations-page .venn-universe-label {
+  text-anchor: start;
+}
+
+.set-operations-page .venn-element {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* Two diagrams side by side when a law is being checked. */
+.set-operations-page .venn-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
