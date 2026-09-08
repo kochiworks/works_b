@@ -38,15 +38,22 @@ export interface VennGeometry {
   /**
    * Where the elements of each region are written. Keyed by the region's
    * signature — "AB" for A∩B minus C, "" for the part of U outside everything.
+   * A narrow region carries its own `perRow` so its elements stack instead of
+   * spreading sideways past the curve that bounds it.
    */
-  centroids: Record<string, Point>
+  centroids: Record<string, RegionSpot>
+}
+
+export interface RegionSpot extends Point {
+  /** How many elements may share a row here. Defaults to 3. */
+  perRow?: number
 }
 
 /** Two overlapping circles, the arrangement the textbook uses for A ∪ B. */
 export const VENN_2: VennGeometry = {
   width: 360,
-  height: 252,
-  frame: { x: 8, y: 14, w: 344, h: 226, radius: 14 },
+  height: 278,
+  frame: { x: 8, y: 14, w: 344, h: 250, radius: 14 },
   universeLabel: { x: 306, y: 14 },
   circles: { A: { cx: 145, cy: 130, r: 78 }, B: { cx: 215, cy: 130, r: 78 } },
   labelAngles: { A: 128, B: 52 },
@@ -54,15 +61,17 @@ export const VENN_2: VennGeometry = {
     A: { x: 103, y: 130 },
     AB: { x: 180, y: 130 },
     B: { x: 257, y: 130 },
-    '': { x: 34, y: 224 },
+    // The band below the circles is wide but shallow, so elements outside every
+    // set run along it six to a row rather than stacking into the frame edge.
+    '': { x: 180, y: 238, perRow: 6 },
   },
 }
 
 /** Three circles in the classic arrangement, A above B and C. */
 export const VENN_3: VennGeometry = {
   width: 360,
-  height: 324,
-  frame: { x: 8, y: 14, w: 344, h: 298, radius: 14 },
+  height: 344,
+  frame: { x: 8, y: 14, w: 344, h: 316, radius: 14 },
   universeLabel: { x: 306, y: 14 },
   circles: {
     A: { cx: 180, cy: 136, r: 76 },
@@ -70,15 +79,19 @@ export const VENN_3: VennGeometry = {
     C: { cx: 222, cy: 210, r: 76 },
   },
   labelAngles: { A: 90, B: 200, C: 340 },
+  // Every spot below was placed by measuring, not by eye: each one clears the
+  // curve of every set it is inside of, and of every set it is outside of, by
+  // more than half a glyph — even with several elements sharing the region.
+  // The lens regions are the tight ones, so they take two per row.
   centroids: {
-    A: { x: 180, y: 90 },
-    B: { x: 104, y: 238 },
-    C: { x: 256, y: 238 },
-    AB: { x: 128, y: 186 },
-    AC: { x: 232, y: 186 },
-    BC: { x: 180, y: 250 },
-    ABC: { x: 180, y: 196 },
-    '': { x: 34, y: 296 },
+    A: { x: 180, y: 95 },
+    B: { x: 100, y: 240, perRow: 2 },
+    C: { x: 260, y: 240, perRow: 2 },
+    AB: { x: 136, y: 158, perRow: 2 },
+    AC: { x: 224, y: 158, perRow: 2 },
+    BC: { x: 180, y: 238, perRow: 2 },
+    ABC: { x: 180, y: 185, perRow: 2 },
+    '': { x: 180, y: 308, perRow: 6 },
   },
 }
 
@@ -166,15 +179,15 @@ export function allRegions(setCount: 2 | 3): Membership[] {
 
 /**
  * Where to write a region's elements. One label sits on the centroid; several
- * are laid out in rows of at most three around it, so they stay inside the
- * region's own patch of the diagram.
+ * are laid out in rows around it — at most `maxPerRow` wide, which a narrow
+ * region lowers so its elements stay inside its own patch of the diagram.
  */
-export function elementPositions(centre: Point, count: number): Point[] {
+export function elementPositions(centre: Point, count: number, maxPerRow = 3): Point[] {
   if (count === 0) return []
-  const perRow = Math.min(3, count)
+  const perRow = Math.min(maxPerRow, count)
   const rows = Math.ceil(count / perRow)
-  const dx = 20
-  const dy = 17
+  const dx = 18
+  const dy = 15
   const positions: Point[] = []
   for (let i = 0; i < count; i++) {
     const row = Math.floor(i / perRow)

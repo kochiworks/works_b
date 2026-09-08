@@ -102,8 +102,14 @@ export function VennDiagram({ idPrefix, setCount, shaded, universe, membership, 
         {[...byRegion.entries()].map(([key, values]) => {
           const centre = geo.centroids[key]
           if (!centre) return null
-          return elementPositions(centre, values.length).map((point, index) => (
-            <text key={`${key}-${values[index]}`} className="venn-element" x={point.x} y={point.y}>
+          return elementPositions(centre, values.length, centre.perRow).map((point, index) => (
+            <text
+              key={`${key}-${values[index]}`}
+              className="venn-element"
+              data-region={key}
+              x={point.x}
+              y={point.y}
+            >
               {values[index]}
             </text>
           ))

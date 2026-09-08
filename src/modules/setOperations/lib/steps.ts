@@ -11,22 +11,24 @@ export interface OperationStep {
 }
 
 /**
- * The order a side is built in, read off its own expression tree: every
- * operand is drawn before the operation that uses it, so (A ∪ B)ᶜ becomes
- * A → B → A ∪ B → (A ∪ B)ᶜ.
+ * The order a side is built in, read off its own expression tree: the innermost
+ * bracket is worked out first, then the operation that uses it, so
+ * A ∩ (B ∪ C) becomes B ∪ C → A ∩ (B ∪ C) — the way the calculation is
+ * actually written out, without restating the sets it starts from.
  *
- * Two rules keep the sequence from restating the obvious. A bare set drawn
- * only to be complemented straight away is dropped, so Aᶜ ∩ Bᶜ becomes
- * Aᶜ → Bᶜ → Aᶜ ∩ Bᶜ rather than A → Aᶜ → B → Bᶜ → Aᶜ ∩ Bᶜ. And a set that
- * appears in more than one place is drawn only the first time, so the A of
- * (A ∩ B) ∪ (A ∩ C) does not come round twice.
+ * The exception is an expression that is a single operation, where there is no
+ * order to show. There the operands are the story, so A ∪ B is built as
+ * A → B → A ∪ B and Aᶜ as A → Aᶜ.
  */
 export function buildSteps(expr: SetExpr, finalTex?: string): OperationStep[] {
+  const operations = operationNodes(expr)
+  const nodes = operations.length <= 1 ? [...leafOperands(expr), ...operations] : operations
+
   const seen = new Set<string>()
-  const steps = postOrder(expr, true)
+  const steps = nodes
     .map((node) => ({ tex: texOf(node), expr: node, caption: captionFor(node) }))
-    // A set that both halves of the expression use — the A in
-    // (A ∩ B) ∪ (A ∩ C) — is drawn once, not again for the second half.
+    // A sub-expression that both halves use — the A ∩ B of (A ∩ B) ∪ (A ∩ C)
+    // were it to appear twice — is drawn once, not again for the second half.
     .filter((step) => {
       if (seen.has(step.tex)) return false
       seen.add(step.tex)
@@ -38,24 +40,33 @@ export function buildSteps(expr: SetExpr, finalTex?: string): OperationStep[] {
   return steps
 }
 
-/** Operands first, then the operation — minus the leaves a complement swallows. */
-function postOrder(expr: SetExpr, isRoot: boolean): SetExpr[] {
+/** Every operation in the expression, innermost bracket first. */
+function operationNodes(expr: SetExpr): SetExpr[] {
+  switch (expr.kind) {
+    case 'set':
+    case 'universe':
+      return []
+    case 'complement':
+      return [...operationNodes(expr.of), expr]
+    case 'union':
+    case 'intersect':
+    case 'difference':
+      return [...operationNodes(expr.left), ...operationNodes(expr.right), expr]
+  }
+}
+
+/** The plain sets an expression is built from, left to right. */
+function leafOperands(expr: SetExpr): SetExpr[] {
   switch (expr.kind) {
     case 'set':
     case 'universe':
       return [expr]
-    case 'complement': {
-      // A bare set about to be complemented is not worth its own step — unless
-      // the complement is the whole point, as in the operation Aᶜ, where seeing
-      // A first is exactly what makes the flip readable.
-      const bare = expr.of.kind === 'set' || expr.of.kind === 'universe'
-      const inner = bare && !isRoot ? [] : postOrder(expr.of, false)
-      return [...inner, expr]
-    }
+    case 'complement':
+      return leafOperands(expr.of)
     case 'union':
     case 'intersect':
     case 'difference':
-      return [...postOrder(expr.left, false), ...postOrder(expr.right, false), expr]
+      return [...leafOperands(expr.left), ...leafOperands(expr.right)]
   }
 }
 

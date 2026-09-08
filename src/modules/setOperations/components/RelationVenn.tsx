@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { NAME_GAP, WIDE_NAME_GAP, elementPositions, labelPoint, openArcPath, regionKey } from '../lib/regions'
-import type { Circle, Point } from '../lib/regions'
+import type { Circle, Point, RegionSpot } from '../lib/regions'
 import type { RelationVerdict } from '../lib/relations'
 import type { Membership } from '../lib/types'
 
@@ -8,16 +8,17 @@ interface Layout {
   circles: { A: Circle; B: Circle }
   /** Direction of each set's opening, in degrees counterclockwise from east. */
   labelAngles: { A: number; B: number }
-  centroids: Record<string, Point>
+  centroids: Record<string, RegionSpot>
   /** 서로 같은 집합: one curve carrying both names, so it opens wider. */
   merged?: boolean
 }
 
 const WIDTH = 360
-const HEIGHT = 252
-const FRAME = { x: 8, y: 14, w: 344, h: 226, radius: 14 }
+const HEIGHT = 278
+const FRAME = { x: 8, y: 14, w: 344, h: 250, radius: 14 }
 const UNIVERSE_LABEL: Point = { x: 306, y: 14 }
-const OUTSIDE: Point = { x: 34, y: 224 }
+/** The band below the circles is shallow, so strays run along it six to a row. */
+const OUTSIDE: RegionSpot = { x: 180, y: 238, perRow: 6 }
 
 /**
  * The textbook draws each relation its own way — one curve inside another for
@@ -43,12 +44,22 @@ const LAYOUTS: Record<RelationVerdict['layout'], Layout> = {
     circles: { A: { cx: 150, cy: 134, r: 48 }, B: { cx: 180, cy: 134, r: 92 } },
     labelAngles: { A: 90, B: 145 },
     // A ⊂ B, so A's own elements are in both sets and belong under "AB".
-    centroids: { A: { x: 150, y: 134 }, AB: { x: 150, y: 134 }, B: { x: 250, y: 134 }, '': OUTSIDE },
+    centroids: {
+      A: { x: 150, y: 134 },
+      AB: { x: 150, y: 134 },
+      B: { x: 244, y: 134, perRow: 2 },
+      '': OUTSIDE,
+    },
   },
   'nested-b-in-a': {
     circles: { A: { cx: 180, cy: 134, r: 92 }, B: { cx: 150, cy: 134, r: 48 } },
     labelAngles: { A: 145, B: 90 },
-    centroids: { A: { x: 250, y: 134 }, AB: { x: 150, y: 134 }, B: { x: 150, y: 134 }, '': OUTSIDE },
+    centroids: {
+      A: { x: 244, y: 134, perRow: 2 },
+      AB: { x: 150, y: 134 },
+      B: { x: 150, y: 134 },
+      '': OUTSIDE,
+    },
   },
   equal: {
     circles: { A: { cx: 180, cy: 134, r: 84 }, B: { cx: 180, cy: 134, r: 84 } },
@@ -128,8 +139,14 @@ export function RelationVenn({ verdict, universe, membership }: Props) {
         {[...byRegion.entries()].map(([key, values]) => {
           const centre = layout.centroids[key]
           if (!centre) return null
-          return elementPositions(centre, values.length).map((point, index) => (
-            <text key={`${key}-${values[index]}`} className="venn-element" x={point.x} y={point.y}>
+          return elementPositions(centre, values.length, centre.perRow).map((point, index) => (
+            <text
+              key={`${key}-${values[index]}`}
+              className="venn-element"
+              data-region={key}
+              x={point.x}
+              y={point.y}
+            >
               {values[index]}
             </text>
           ))
