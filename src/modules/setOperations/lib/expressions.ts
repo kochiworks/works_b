@@ -66,3 +66,51 @@ export function shadedRegions(expr: SetExpr, setCount: 2 | 3): Membership[] {
 export function sameRegions(left: SetExpr, right: SetExpr, setCount: 2 | 3): boolean {
   return allRegions(setCount).every((region) => evaluate(left, region) === evaluate(right, region))
 }
+
+/**
+ * Whether an expression needs brackets when it stands as one operand of
+ * another. A set and a complement already read as one thing — Aᶜ ∩ Bᶜ needs no
+ * brackets — while a union, intersection or difference has to be grouped, which
+ * is how the textbook writes (A ∩ B) ∪ (A ∩ C).
+ */
+function isCompound(expr: SetExpr): boolean {
+  return expr.kind === 'union' || expr.kind === 'intersect' || expr.kind === 'difference'
+}
+
+/** KaTeX source for an expression, bracketed the way the textbook writes it. */
+export function texOf(expr: SetExpr): string {
+  const operand = (child: SetExpr): string => (isCompound(child) ? `(${texOf(child)})` : texOf(child))
+  switch (expr.kind) {
+    case 'set':
+      return expr.name
+    case 'universe':
+      return 'U'
+    case 'union':
+      return `${operand(expr.left)} \\cup ${operand(expr.right)}`
+    case 'intersect':
+      return `${operand(expr.left)} \\cap ${operand(expr.right)}`
+    case 'difference':
+      return `${operand(expr.left)} - ${operand(expr.right)}`
+    case 'complement':
+      return `${operand(expr.of)}^{c}`
+  }
+}
+
+/** The same notation in plain characters, for prose that names a step. */
+export function labelOf(expr: SetExpr): string {
+  const operand = (child: SetExpr): string => (isCompound(child) ? `(${labelOf(child)})` : labelOf(child))
+  switch (expr.kind) {
+    case 'set':
+      return expr.name
+    case 'universe':
+      return 'U'
+    case 'union':
+      return `${operand(expr.left)} ∪ ${operand(expr.right)}`
+    case 'intersect':
+      return `${operand(expr.left)} ∩ ${operand(expr.right)}`
+    case 'difference':
+      return `${operand(expr.left)} − ${operand(expr.right)}`
+    case 'complement':
+      return `${operand(expr.of)}ᶜ`
+  }
+}

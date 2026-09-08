@@ -368,6 +368,22 @@
   color: var(--accent-strong);
 }
 
+/* Both of these would otherwise fall through to another module's bare rule of
+   the same name in the shared global sheet. Declared here so this module holds
+   its own look regardless of what the others define. */
+.set-operations-page .param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.set-operations-page .set-tex {
+  color: inherit;
+}
+
 /* 조건제시법 with a Korean condition: the braces, bar and variable are set in
    KaTeX's own faces so the line matches the formulas around it, while the
    Korean words keep the page's UI font. */
@@ -539,4 +555,248 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
+}
+
+/* --- Step-by-step build of an expression --- */
+
+.set-operations-page .venn-column {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.set-operations-page .venn-column-tex {
+  text-align: center;
+  font-size: 1.15rem;
+  color: var(--accent-strong);
+  /* The notation changes length as the build advances; a fixed line keeps the
+     two diagrams of a law from sliding up and down against each other. */
+  min-height: 1.9rem;
+}
+
+.set-operations-page .venn-column-roster {
+  margin: 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  min-height: 1.5rem;
+}
+
+.set-operations-page .animation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.set-operations-page .animation-count {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.set-operations-page .animation-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.set-operations-page .secondary-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--accent);
+  color: var(--accent-strong);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition:
+    background 150ms ease,
+    transform 100ms ease;
+}
+
+.set-operations-page .secondary-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.set-operations-page .secondary-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.set-operations-page .step-group,
+.set-operations-page .speed-group {
+  display: flex;
+  gap: 4px;
+}
+
+.set-operations-page .step-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: background 150ms ease;
+}
+
+.set-operations-page .step-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.set-operations-page .step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.set-operations-page .speed-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.set-operations-page .speed-btn.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: #ffffff;
+}
+
+.set-operations-page .progress-bar {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border-softer);
+  overflow: hidden;
+}
+
+.set-operations-page .progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--sky));
+  border-radius: var(--radius-pill);
+  transition: width 120ms linear;
+}
+
+/* --- The order a side was built in --- */
+
+.set-operations-page .step-trail-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.set-operations-page .step-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.set-operations-page .step-trail-heading {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.set-operations-page .step-trail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.set-operations-page .step-trail-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-soft);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    opacity 180ms ease;
+}
+
+.set-operations-page .step-trail-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.set-operations-page .step-trail-item.is-done {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.set-operations-page .step-trail-item.is-current {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+  animation: set-step-in 220ms ease;
+}
+
+.set-operations-page .step-trail-item.is-current .step-trail-index {
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--accent-contrast);
+}
+
+.set-operations-page .step-trail-item.is-waiting {
+  opacity: 0.45;
+}
+
+.set-operations-page .step-trail-item .katex,
+.set-operations-page .step-trail-tex {
+  color: inherit;
+  font-size: 1em;
+}
+
+.set-operations-page .step-trail-caption {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  min-height: 2.6em;
+}
+
+.set-operations-page .verdict.is-pending {
+  background: var(--surface-soft);
+  color: var(--text-muted);
+}
+
+@keyframes set-step-in {
+  from {
+    transform: translateY(-3px);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
