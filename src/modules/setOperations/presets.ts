@@ -70,7 +70,7 @@ export const PRESETS: Preset[] = [
   {
     id: 'distributive',
     label: '분배법칙 (세 집합)',
-    description: '교과서 문제 5처럼 A∩(B∪C)와 (A∩B)∪(A∩C)를 색칠해 비교해요.',
+    description: 'A∩(B∪C)와 (A∩B)∪(A∩C)를 색칠해 나란히 비교해요.',
     config: { stage: 'operation', operationId: 'distributive-1' },
   },
 ]
